@@ -14,7 +14,7 @@ AC_CONFIG_MACRO_DIR([m4])
 m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES])
 AC_CONFIG_AUX_DIR([build-aux])
 
-m4_pattern_forbid([^AX_],
+m4_pattern_forbid([^AX_(COMPILER_FLAGS|IS_RELEASE|PYTHON_DEVEL|PYTHON_MODULE)\b],
   [Unexpanded AX_ macro found. Please install GNU autoconf-archive])
 
 # By default, rebuild autotools files on demand; only use ./missing if the
