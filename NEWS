@@ -1,7 +1,16 @@
 dbus Python Bindings 1.2.16 (UNRELEASED)
 ========================================
 
-...
+Enhancements:
+
+• All tests are run even if the tap.py module is not available, although
+  diagnostics for failing tests will be better if it is present.
+  (Simon McVittie)
+
+Fixes:
+
+• Forbid unexpanded AX-prefixed macros more selectively, similar to
+  dbus#249. (Simon McVittie)
 
 dbus Python Bindings 1.2.14 (2019-11-25)
 ========================================
