@@ -248,6 +248,7 @@ dist_test_py = \
 
 dist_test_extra_python = \
 	test/crosstest.py \
+	test/dbus_test_utils.py \
 	$(NULL)
 
 dist_test_extra_scripts = \

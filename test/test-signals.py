@@ -35,12 +35,7 @@ import dbus
 import _dbus_bindings
 import dbus.glib
 import dbus.service
-
-try:
-    from tap.runner import TAPTestRunner
-except ImportError:
-    print('1..0 # SKIP cannot import TAPTestRunner')
-    raise SystemExit(0)
+import dbus_test_utils
 
 try:
     from gi.repository import GObject as gobject
@@ -170,6 +165,4 @@ if __name__ == '__main__':
     dbus.glib.init_threads()
 
     logger.info('Starting unit test')
-    runner = TAPTestRunner()
-    runner.set_stream(True)
-    unittest.main(testRunner=runner)
+    dbus_test_utils.main()

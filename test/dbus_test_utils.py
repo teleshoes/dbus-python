@@ -1,6 +1,4 @@
-#!/usr/bin/env python
-
-# Copyright (C) 2007 Collabora Ltd. <http://www.collabora.co.uk/>
+# Copyright 2020 Simon McVittie
 #
 # SPDX-License-Identifier: MIT
 #
@@ -28,15 +26,28 @@ from __future__ import print_function
 
 import unittest
 
-import dbus
-import dbus_test_utils
+try:
+    from tap.runner import TAPTestRunner
+except ImportError:
+    TAPTestRunner = None    # type: ignore
 
-from dbus_py_test import UnusableMainLoop
-
-class Test(unittest.TestCase):
-    def test_unusable_main_loop(self):
-        UnusableMainLoop(set_as_default=True)
-        self.assertRaises(ValueError, lambda: dbus.SessionBus())
-
-if __name__ == '__main__':
-    dbus_test_utils.main()
+def main():
+    # type: (...) -> None
+    if TAPTestRunner is not None:
+        runner = TAPTestRunner()
+        runner.set_stream(True)
+        unittest.main(testRunner=runner)
+    else:
+        # You thought pycotap was a minimal TAP implementation?
+        print('1..1')
+        program = unittest.main(exit=False)
+        if program.result.wasSuccessful():
+            print(
+                'ok 1 - %r (tap module not available)'
+                % program.result
+            )
+        else:
+            print(
+                'not ok 1 - %r (tap module not available)'
+                % program.result
+            )

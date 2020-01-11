@@ -35,16 +35,11 @@ import sys
 import os
 import unittest
 
-try:
-    from tap.runner import TAPTestRunner
-except ImportError:
-    print('1..0 # SKIP cannot import TAPTestRunner')
-    raise SystemExit(0)
-
 import _dbus_bindings
 import dbus
 import dbus.lowlevel as lowlevel
 import dbus.types as types
+import dbus_test_utils
 from dbus._compat import is_py2, is_py3
 
 if is_py3:
@@ -653,6 +648,4 @@ class TestVersion(unittest.TestCase):
         self.assertLess(dbus.__version__, '9')
 
 if __name__ == '__main__':
-    runner = TAPTestRunner()
-    runner.set_stream(True)
-    unittest.main(testRunner=runner, verbosity=2)
+    dbus_test_utils.main()
