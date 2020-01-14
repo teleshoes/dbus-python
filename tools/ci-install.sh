@@ -153,8 +153,10 @@ case "$ci_distro" in
                     ;;
 
                 (*)
-                    $sudo apt-get -qq -y install ${dbus_ci_system_python_module_prefix}tap
-                    have_system_tappy=yes
+                    if [ "${dbus_ci_system_python_module_prefix}" = python3- ]; then
+                        $sudo apt-get -qq -y install python3-tap
+                        have_system_tappy=yes
+                    fi
                     ;;
             esac
 
@@ -212,6 +214,9 @@ else
 fi
 
 if [ -n "$have_system_tappy" ]; then
+    :
+elif "${PYTHON:-${dbus_ci_system_python-false}}" -c 'import sys; exit(sys.version_info[0] > 2)'; then
+    # Don't install tap.py for Python 2
     :
 elif [ -n "${dbus_ci_system_python-}" ]; then
     "$dbus_ci_system_python" -m pip install --user \
