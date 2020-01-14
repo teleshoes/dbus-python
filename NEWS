@@ -1,5 +1,7 @@
-dbus Python Bindings 1.2.16 (UNRELEASED)
+dbus Python Bindings 1.2.16 (2020-01-14)
 ========================================
+
+The “bag of assorted swords” release.
 
 Enhancements:
 
