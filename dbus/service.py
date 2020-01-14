@@ -32,7 +32,11 @@ import sys
 import logging
 import threading
 import traceback
-from collections import Sequence
+try:
+    from collections.abc import Sequence
+except ImportError:
+    # Python 2 (and 3.x < 3.3, but we don't support those)
+    from collections import Sequence
 
 import _dbus_bindings
 from dbus import (
