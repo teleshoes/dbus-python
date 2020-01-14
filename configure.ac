@@ -132,6 +132,7 @@ AX_COMPILER_FLAGS([WARN_CFLAGS],
   dnl AX_COMPILER_FLAGS, and are not const-correct for strings
   [ \
    -Wdeprecated-declarations \
+   -Wno-declaration-after-statement \
    -Wno-duplicated-branches \
    -Wno-inline \
    -Wno-redundant-decls \
@@ -141,6 +142,7 @@ AX_COMPILER_FLAGS([WARN_CFLAGS],
 dnl AX_COMPILER_FLAGS doesn't order the compiler flags correctly to be able
 dnl to disable flags that it would normally enable
 WARN_CFLAGS="$(echo "${WARN_CFLAGS}" | ${SED} \
+  -e s/-Wdeclaration-after-statement// \
   -e s/-Wduplicated-branches// \
   -e s/-Winline// \
   -e s/-Wredundant-decls// \
