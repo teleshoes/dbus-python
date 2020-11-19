@@ -327,7 +327,16 @@ def signal(dbus_interface, signature=None, path_keyword=None,
                 location[0].send_message(message)
         # end emit_signal
 
-        args = inspect.getargspec(func)[0]
+        if hasattr(inspect, 'Signature'):
+            args = []
+
+            for arg in inspect.signature(func).parameters.values():
+                if arg.kind in (inspect.Parameter.POSITIONAL_ONLY,
+                        inspect.Parameter.POSITIONAL_OR_KEYWORD):
+                    args.append(arg.name)
+        else:
+            args = inspect.getargspec(func)[0]
+
         args.pop(0)
 
         for keyword in rel_path_keyword, path_keyword:
