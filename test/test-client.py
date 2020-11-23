@@ -685,7 +685,6 @@ class TestDBusPythonToGLibBindings(unittest.TestCase):
             self.assertEqual(send_val, recv_val.object)
 """
 if __name__ == '__main__':
-    GLib.threads_init()
     dbus.glib.init_threads()
 
     dbus_test_utils.main()

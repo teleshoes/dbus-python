@@ -161,7 +161,6 @@ class TestSignals(unittest.TestCase):
 
 if __name__ == '__main__':
     main_loop = GLib.MainLoop()
-    GLib.threads_init()
     dbus.glib.init_threads()
 
     logger.info('Starting unit test')
