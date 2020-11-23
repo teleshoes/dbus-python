@@ -38,9 +38,9 @@ import dbus.service
 import dbus_test_utils
 
 try:
-    from gi.repository import GObject as gobject
+    from gi.repository import GLib
 except ImportError:
-    print('1..0 # SKIP cannot import GObject')
+    print('1..0 # SKIP cannot import GLib')
     raise SystemExit(0)
 
 logging.basicConfig()
@@ -111,23 +111,23 @@ class TestSignals(unittest.TestCase):
                                         path_keyword='path')
         logger.info('Waiting for signal...')
         iface.EmitSignal('SignalOneString', 0)
-        source_id = gobject.timeout_add(1000, _timeout_handler)
+        source_id = GLib.timeout_add(1000, _timeout_handler)
         main_loop.run()
         if not result:
             raise AssertionError('Signal did not arrive within 1 second')
         logger.debug('Removing match')
         match.remove()
-        gobject.source_remove(source_id)
+        GLib.source_remove(source_id)
         if test_removal:
             self.in_test = name + '+removed'
             logger.info('Testing %s', name)
             result = []
             iface.EmitSignal('SignalOneString', 0)
-            source_id = gobject.timeout_add(1000, _rm_timeout_handler)
+            source_id = GLib.timeout_add(1000, _rm_timeout_handler)
             main_loop.run()
             if result:
                 raise AssertionError('Signal should not have arrived, but did')
-            gobject.source_remove(source_id)
+            GLib.source_remove(source_id)
 
     def testFallback(self):
         self.signal_test_impl(self.fallback_iface, 'Fallback')
@@ -160,8 +160,8 @@ class TestSignals(unittest.TestCase):
         self.signal_test_impl(self.iface_follow, 'RemovalAgain', True)
 
 if __name__ == '__main__':
-    main_loop = gobject.MainLoop()
-    gobject.threads_init()
+    main_loop = GLib.MainLoop()
+    GLib.threads_init()
     dbus.glib.init_threads()
 
     logger.info('Starting unit test')

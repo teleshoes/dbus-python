@@ -40,9 +40,9 @@ import dbus_test_utils
 from dbus._compat import is_py2
 
 try:
-    from gi.repository import GObject as gobject
+    from gi.repository import GLib
 except ImportError:
-    print('1..0 # SKIP cannot import GObject')
+    print('1..0 # SKIP cannot import GLib')
     raise SystemExit(0)
 
 logging.basicConfig()
@@ -123,7 +123,7 @@ class TestDBusBindings(unittest.TestCase):
 
 
 if __name__ == '__main__':
-    gobject.threads_init()
+    GLib.threads_init()
     dbus.glib.init_threads()
 
     dbus_test_utils.main()

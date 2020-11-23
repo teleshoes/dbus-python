@@ -28,7 +28,7 @@ from __future__ import print_function, unicode_literals
 import logging
 
 try:
-    from gi.repository import GObject as gobject
+    from gi.repository import GLib
 except ImportError:
     raise SystemExit(77)
 
@@ -415,9 +415,9 @@ if __name__ == '__main__':
         # the Java cross test's interpretation is that the client should be
         # at /Test too
         client = Client(dbus.SessionBus(), '/Test')
-    gobject.idle_add(client.run_client)
+    GLib.idle_add(client.run_client)
 
-    loop = gobject.MainLoop()
+    loop = GLib.MainLoop()
     logger.info("running...")
     loop.run()
     logger.info("main loop exited.")

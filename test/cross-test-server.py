@@ -28,7 +28,7 @@ from __future__ import print_function
 import logging
 
 try:
-    from gi.repository import GObject as gobject
+    from gi.repository import GLib
 except ImportError:
     raise SystemExit(77)
 
@@ -283,9 +283,9 @@ class TestsImpl(dbus.service.Object):
         assert isinstance(object, str)
         logger.info('method/signal: client wants me to emit Triggered(%r) from %r', parameter, object)
         tested_things.add(INTERFACE_TESTS + '.Trigger')
-        gobject.idle_add(lambda: self.emit_Triggered_from(conn, object,
-                                                          parameter,
-                                                          reply_cb))
+        GLib.idle_add(lambda: self.emit_Triggered_from(conn, object,
+                                                       parameter,
+                                                       reply_cb))
 
     def emit_Triggered_from(self, conn, object, parameter, reply_cb):
         assert isinstance(object, str)
@@ -307,7 +307,7 @@ class TestsImpl(dbus.service.Object):
             if x not in tested_things:
                 print('%s untested' % x)
         logger.info('will quit when idle')
-        gobject.idle_add(self._exit_fn)
+        GLib.idle_add(self._exit_fn)
 
 
 class Server(SingleTestsImpl, TestsImpl, SignalTestsImpl):
@@ -325,7 +325,7 @@ class Server(SingleTestsImpl, TestsImpl, SignalTestsImpl):
 if __name__ == '__main__':
     bus = SessionBus()
     bus_name = BusName(CROSS_TEST_BUS_NAME, bus=bus)
-    loop = gobject.MainLoop()
+    loop = GLib.MainLoop()
     obj = Server(bus_name, CROSS_TEST_PATH, loop.quit)
     objects[CROSS_TEST_PATH] = obj
     kwargs = {}

@@ -42,9 +42,9 @@ import dbus_test_utils
 from dbus._compat import is_py2, is_py3
 
 try:
-    from gi.repository import GObject as gobject
+    from gi.repository import GLib
 except ImportError:
-    print('1..0 # SKIP cannot import GObject')
+    print('1..0 # SKIP cannot import GLib')
     raise SystemExit(0)
 
 logging.basicConfig()
@@ -203,7 +203,7 @@ class TestDBusBindings(unittest.TestCase):
     def testNoReply(self):
         failures = []
         report = []
-        main_loop = gobject.MainLoop()
+        main_loop = GLib.MainLoop()
         unicode_type = (str if is_py3 else unicode)
 
         def message_filter(conn, m):
@@ -256,7 +256,7 @@ class TestDBusBindings(unittest.TestCase):
         print("\n********* Testing Async Calls ***********")
 
         failures = []
-        main_loop = gobject.MainLoop()
+        main_loop = GLib.MainLoop()
 
         class async_check:
             def __init__(self, test_controler, expected_result, do_exit, **kwargs):
@@ -574,7 +574,7 @@ class TestDBusBindings(unittest.TestCase):
         dbus.Bus(private=True).close()
 
     def testTimeoutAsyncClient(self):
-        loop = gobject.MainLoop()
+        loop = GLib.MainLoop()
         passes = []
         fails = []
         def correctly_returned():
@@ -685,7 +685,7 @@ class TestDBusPythonToGLibBindings(unittest.TestCase):
             self.assertEqual(send_val, recv_val.object)
 """
 if __name__ == '__main__':
-    gobject.threads_init()
+    GLib.threads_init()
     dbus.glib.init_threads()
 
     dbus_test_utils.main()
