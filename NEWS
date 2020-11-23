@@ -1,7 +1,27 @@
 dbus Python Bindings 1.2.18 (UNRELEASED)
 ========================================
 
-...
+Fixes:
+
+• Avoid another deprecation warning for inspect.getargspec().
+  This is similar to the one fixed in 1.2.4, but for dbus.decorators.signal
+  rather than dbus.decorators.method. (dbus-python!8; Martin Stumpf)
+
+• Avoid more deprecation warnings:
+  - collections.Sequence (now used via collections.abc.Sequence on
+    Python ≥ 3.3)
+  - gi.repository.GObject.MainLoop etc. (now used via gi.repository.GLib)
+  - gi.repository.GLib.threads_init (no longer necessary at all)
+  (Simon McVittie)
+
+• Disable -Wdeclaration-after-statement. Python 3.9 relies on intermixed
+  declarations and statements in its headers, so we can no longer
+  enforce this. (Simon McVittie)
+
+CI fixes:
+
+• Stop installing tap.py for Python 2. The latest version only supports
+  Python 3. (Simon McVittie)
 
 dbus Python Bindings 1.2.16 (2020-01-14)
 ========================================
