@@ -145,8 +145,10 @@ UnixFd_tp_new(PyTypeObject *cls, PyObject *args, PyObject *kwargs)
     }
 
     self = (UnixFdObject *) cls->tp_alloc(cls, 0);
-    if (!self)
+    if (!self) {
+        close(fd);
         return NULL;
+    }
 
     self->fd = fd;
     if (variant_level < 0) {
