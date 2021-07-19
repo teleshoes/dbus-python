@@ -95,4 +95,13 @@ build:python3.9-dbg:
     dbus_ci_system_python_module_suffix: -dbg
   script: *script
 
+build:python3.10:
+  stage: build
+  image: "ubuntu:impish"
+  variables:
+    ci_distro: ubuntu
+    ci_suite: impish
+    dbus_ci_system_python: python3.10
+  script: *script
+
 # vim:set sw=2 sts=2 et:
