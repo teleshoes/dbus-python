@@ -77,20 +77,20 @@ build:python3.7-dbg:
     dbus_ci_system_python: python3-dbg
   script: *script
 
-build:python3.8:
+build:python3.9:
   stage: build
-  image: "debian:sid-slim"
+  image: "debian:bullseye-slim"
   variables:
-    ci_suite: sid
-    dbus_ci_system_python: python3.8
+    ci_suite: bullseye
+    dbus_ci_system_python: python3.9
   script: *script
 
-build:python3.8-dbg:
+build:python3.9-dbg:
   stage: build
-  image: "debian:sid-slim"
+  image: "debian:bullseye-slim"
   variables:
-    ci_suite: sid
-    dbus_ci_system_python: python3.8-dbg
+    ci_suite: bullseye
+    dbus_ci_system_python: python3.9-dbg
     dbus_ci_system_python_module_prefix: python3-
     dbus_ci_system_python_module_suffix: -dbg
   script: *script
