@@ -11,7 +11,6 @@ CLEANFILES = \
 	test/test-service.log \
 	$(NULL)
 EXTRA_DIST = \
-	.travis.yml \
 	AUTHORS \
 	CONTRIBUTING.md \
 	COPYING \

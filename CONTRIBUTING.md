@@ -165,7 +165,7 @@ so you should have an issue number or a merge request ID to refer to.
 
 #### Pre-release steps
 
-* Make sure CI (currently Travis-CI and Gitlab) is passing
+* Make sure CI (currently Gitlab-CI) is passing
 * Update `NEWS` and the version number in `configure.ac`, and commit them
 
 #### Building and uploading the release

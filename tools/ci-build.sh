@@ -43,8 +43,6 @@ if [ -n "$ci_docker" ]; then
 		--env=ci_suite="${ci_suite}" \
 		--env=dbus_ci_parallel="${dbus_ci_parallel}" \
 		--env=dbus_ci_system_python="${dbus_ci_system_python-}" \
-		--env=TRAVIS="${TRAVIS-}" \
-		--env=TRAVIS_PYTHON_VERSION="${TRAVIS_PYTHON_VERSION-}" \
 		--privileged \
 		ci-image \
 		tools/ci-build.sh
@@ -70,27 +68,6 @@ if [ -n "$dbus_ci_system_python" ]; then
 			export PYTHON_LIBS="-lpython2.7_d"
 			;;
 	esac
-
-elif [ -n "$TRAVIS_PYTHON_VERSION" ]; then
-	# Possibly in a virtualenv
-	dbus_ci_bindir="$(python -c 'import sys; print(sys.prefix)')"/bin
-	# The real underlying paths, even if we have a virtualenv
-	# e.g. /opt/pythonwhatever/bin on travis-ci
-	dbus_ci_real_bindir="$(python -c 'import distutils.sysconfig; print(distutils.sysconfig.get_config_var("BINDIR"))')"
-	dbus_ci_real_libdir="$(python -c 'import distutils.sysconfig; print(distutils.sysconfig.get_config_var("LIBDIR"))')"
-
-	# We want the virtualenv bindir for python itself, then the real bindir
-	# for python[X.Y]-config (which isn't copied into the virtualenv, so we
-	# risk picking up the wrong one from travis-ci's PATH if we don't
-	# do this)
-	export PATH="${dbus_ci_bindir}:${dbus_ci_real_bindir}:${PATH}"
-	# travis-ci's /opt/pythonwhatever/lib isn't on the library search path
-	export LD_LIBRARY_PATH="${dbus_ci_real_libdir}"
-	# travis-ci's Python 2 library is static, so it raises warnings
-	# about tmpnam_r and tempnam
-	case "$TRAVIS_PYTHON_VERSION" in
-		(2*) export LDFLAGS=-Wl,--no-fatal-warnings;;
-	esac
 fi
 
 NOCONFIGURE=1 ./autogen.sh
@@ -102,7 +79,7 @@ e=0
 		--prefix="$prefix" \
 		${NULL}
 ) || e=1
-if [ "x$e" != x0 ] || [ -n "$TRAVIS" ]; then
+if [ "x$e" != x0 ]; then
 	cat "$builddir/config.log"
 fi
 test "x$e" = x0
