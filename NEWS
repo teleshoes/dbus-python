@@ -3,13 +3,21 @@ dbus Python Bindings 1.2.18 (UNRELEASED)
 
 Fixes:
 
+• Move from collections.Sequence to collections.abc.Sequence on
+  Python ≥ 3.3, for Python 3.10 compatibility
+  (dbus-python#37, Simon McVittie)
+
 • Avoid another deprecation warning for inspect.getargspec().
   This is similar to the one fixed in 1.2.4, but for dbus.decorators.signal
   rather than dbus.decorators.method. (dbus-python!8; Martin Stumpf)
 
+• Fix an unlikely fd leak if memory allocation fails for UnixFd
+  (dbus-python!9, Red Hat #1938703; David King)
+
+• Fix memory and fd leak if UnixFd is given an invalid negative
+  variant_level (Simon McVittie)
+
 • Avoid more deprecation warnings:
-  - collections.Sequence (now used via collections.abc.Sequence on
-    Python ≥ 3.3)
   - gi.repository.GObject.MainLoop etc. (now used via gi.repository.GLib)
   - gi.repository.GLib.threads_init (no longer necessary at all)
   (Simon McVittie)
@@ -22,6 +30,13 @@ CI fixes:
 
 • Stop installing tap.py for Python 2. The latest version only supports
   Python 3. (Simon McVittie)
+
+• Move from Python 3.8 on Debian unstable (no longer available) to
+  3.9 on Debian 11 (Simon McVittie)
+
+• Also test with Python 3.10 on Ubuntu 21.10 (Simon McVittie)
+
+• Remove Travis-CI integration, only use Gitlab-CI (Simon McVittie)
 
 dbus Python Bindings 1.2.16 (2020-01-14)
 ========================================

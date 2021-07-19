@@ -612,6 +612,9 @@ class TestMessageMarshalling(unittest.TestCase):
 
                 with self.assertRaises(TypeError):
                     types.UnixFd(plain_fd, variant_level='nope')
+
+                with self.assertRaises(ValueError):
+                    types.UnixFd(plain_fd, variant_level=-1)
         finally:
             os.close(plain_fd)
 

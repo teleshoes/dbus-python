@@ -111,6 +111,11 @@ UnixFd_tp_new(PyTypeObject *cls, PyObject *args, PyObject *kwargs)
         return NULL;
     }
 
+    if (variant_level < 0) {
+        PyErr_Format(PyExc_ValueError, "variant_level cannot be less than 0");
+        return NULL;
+    }
+
     status = make_fd(arg, &fd_original);
     if (status < 0)
         return NULL;
@@ -151,10 +156,6 @@ UnixFd_tp_new(PyTypeObject *cls, PyObject *args, PyObject *kwargs)
     }
 
     self->fd = fd;
-    if (variant_level < 0) {
-        PyErr_Format(PyExc_ValueError, "variant_level cannot be less than 0");
-        return NULL;
-    }
     self->variant_level = variant_level;
 
     return (PyObject *)self;
