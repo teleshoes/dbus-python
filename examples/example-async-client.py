@@ -1,9 +1,11 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
+
+from __future__ import print_function
 
 usage = """Usage:
-python example-service.py &
-python example-async-client.py
-python example-client.py --exit-service
+python3 example-service.py &
+python3 example-async-client.py
+python3 example-client.py --exit-service
 """
 
 # Copyright (C) 2004-2006 Red Hat Inc. <http://www.redhat.com/>
@@ -45,7 +47,7 @@ def handle_hello_reply(r):
     global hello_replied
     hello_replied = True
 
-    print str(r)
+    print("async client:", str(r))
 
     if hello_replied and raise_replied:
         loop.quit()
@@ -56,8 +58,8 @@ def handle_hello_error(e):
     hello_replied = True
     failed = True
 
-    print "HelloWorld raised an exception! That's not meant to happen..."
-    print "\t", str(e)
+    print("async client: HelloWorld raised an exception! That's not meant to happen...")
+    print("\t", str(e))
 
     if hello_replied and raise_replied:
         loop.quit()
@@ -68,7 +70,7 @@ def handle_raise_reply():
     raise_replied = True
     failed = True
 
-    print "RaiseException returned normally! That's not meant to happen..."
+    print("async client: RaiseException returned normally! That's not meant to happen...")
 
     if hello_replied and raise_replied:
         loop.quit()
@@ -77,8 +79,8 @@ def handle_raise_error(e):
     global raise_replied
     raise_replied = True
 
-    print "RaiseException raised an exception as expected:"
-    print "\t", str(e)
+    print("async client: RaiseException raised an exception as expected:")
+    print("\t", str(e))
 
     if hello_replied and raise_replied:
         loop.quit()
@@ -106,7 +108,7 @@ if __name__ == '__main__':
         remote_object = bus.get_object("com.example.SampleService","/SomeObject")
     except dbus.DBusException:
         traceback.print_exc()
-        print usage
+        print(usage)
         sys.exit(1)
 
     # Make the method call after a short delay

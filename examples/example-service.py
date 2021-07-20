@@ -1,10 +1,12 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
+
+from __future__ import print_function
 
 usage = """Usage:
-python example-service.py &
-python example-client.py
-python example-async-client.py
-python example-client.py --exit-service
+python3 example-service.py &
+python3 example-client.py
+python3 example-async-client.py
+python3 example-client.py --exit-service
 """
 
 # Copyright (C) 2004-2006 Red Hat Inc. <http://www.redhat.com/>
@@ -46,7 +48,7 @@ class SomeObject(dbus.service.Object):
     @dbus.service.method("com.example.SampleInterface",
                          in_signature='s', out_signature='as')
     def HelloWorld(self, hello_message):
-        print (str(hello_message))
+        print("service:", str(hello_message))
         return ["Hello", " from example-service.py", "with unique name",
                 session_bus.get_unique_name()]
 
@@ -80,6 +82,6 @@ if __name__ == '__main__':
     object = SomeObject(session_bus, '/SomeObject')
 
     mainloop = GLib.MainLoop()
-    print "Running example service."
-    print usage
+    print("Running example service.")
+    print(usage)
     mainloop.run()

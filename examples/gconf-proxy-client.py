@@ -1,4 +1,6 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
+
+from __future__ import print_function
 
 # Client for gconf-proxy-service2.py.
 
@@ -36,4 +38,4 @@ gconf_key_object = dbus.Interface(bus.get_object("com.example.GConfProxy", "/org
 
 value = gconf_key_object.getString()
 
-print ("Value of GConf key %s is %s" % (gconf_key, value))
+print("client: Value of GConf key %s is %s" % (gconf_key, value))

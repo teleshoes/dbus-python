@@ -1,9 +1,11 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
+
+from __future__ import print_function
 
 usage = """Usage:
-python example-signal-emitter.py &
-python example-signal-recipient.py
-python example-signal-recipient.py --exit-service
+python3 example-signal-emitter.py &
+python3 example-signal-recipient.py
+python3 example-signal-recipient.py --exit-service
 """
 
 # Copyright (C) 2004-2006 Red Hat Inc. <http://www.redhat.com/>
@@ -40,10 +42,10 @@ import dbus
 import dbus.mainloop.glib
 
 def handle_reply(msg):
-    print msg
+    print("recipient:", msg)
 
 def handle_error(e):
-    print str(e)
+    print("recipient:", str(e))
 
 def emit_signal():
    #call the emitHelloSignal method 
@@ -58,20 +60,20 @@ def emit_signal():
    return False
 
 def hello_signal_handler(hello_string):
-    print ("Received signal (by connecting using remote object) and it says: "
+    print("recipient: Received signal (by connecting using remote object) and it says: "
            + hello_string)
 
 def catchall_signal_handler(*args, **kwargs):
-    print ("Caught signal (in catchall handler) "
+    print("recipient: Caught signal (in catchall handler) "
            + kwargs['dbus_interface'] + "." + kwargs['member'])
     for arg in args:
-        print "        " + str(arg)
+        print("        " + str(arg))
 
 def catchall_hello_signals_handler(hello_string):
-    print "Received a hello signal and it says " + hello_string
-    
+    print("recipient: Received a hello signal and it says " + hello_string)
+
 def catchall_testservice_interface_handler(hello_string, dbus_message):
-    print "com.example.TestService interface says " + hello_string + " when it sent signal " + dbus_message.get_member()
+    print("recipient: com.example.TestService interface says " + hello_string + " when it sent signal " + dbus_message.get_member())
 
 
 if __name__ == '__main__':
@@ -84,7 +86,7 @@ if __name__ == '__main__':
         object.connect_to_signal("HelloSignal", hello_signal_handler, dbus_interface="com.example.TestService", arg0="Hello")
     except dbus.DBusException:
         traceback.print_exc()
-        print usage
+        print(usage)
         sys.exit(1)
 
     #lets make a catchall

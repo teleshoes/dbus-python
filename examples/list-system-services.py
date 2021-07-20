@@ -1,6 +1,8 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
-"""Usage: python list-system-services.py [--session|--system]
+from __future__ import print_function
+
+"""Usage: python3 list-system-services.py [--session|--system]
 List services on the system bus (default) or the session bus."""
 
 # Copyright (C) 2004-2006 Red Hat Inc. <http://www.redhat.com/>
@@ -65,7 +67,7 @@ def main(argv):
     services = dbus_iface.ListNames()
     services.sort()
     for service in services:
-        print service
+        print(service)
 
 if __name__ == '__main__':
     main(sys.argv)
