@@ -1,8 +1,10 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
+
+from __future__ import print_function
 
 usage = """Usage:
-python unix-fd-service.py <file name> &
-python unix-fd-client.py
+python3 unix-fd-service.py <file name> &
+python3 unix-fd-client.py
 """
 
 # Copyright (C) 2004-2006 Red Hat Inc. <http://www.redhat.com/>
@@ -49,20 +51,20 @@ class SomeObject(dbus.service.Object):
         self.counter = (self.counter + 1) % 3
 
         if self.counter == 0:
-            print "sending UnixFd(filelike)"
+            print("service: sending UnixFd(filelike)")
             return dbus.types.UnixFd(f)
         elif self.counter == 1:
-            print "sending int"
+            print("service: sending int")
             return f.fileno()
         else:
-            print "sending UnixFd(int)"
+            print("service: sending UnixFd(int)")
             return dbus.types.UnixFd(f.fileno())
 
 if len(sys.argv) < 2:
-    print usage
+    print(usage)
     sys.exit(1)
 
-f = file(sys.argv[1], "r")
+f = open(sys.argv[1], "r")
 
 if __name__ == '__main__':
     dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
@@ -72,6 +74,6 @@ if __name__ == '__main__':
     object = SomeObject(session_bus, '/SomeObject')
 
     mainloop = GLib.MainLoop()
-    print "Running fd service."
-    print usage
+    print("Running fd service.")
+    print(usage)
     mainloop.run()

@@ -1,10 +1,12 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
+
+from __future__ import print_function
 
 import time
 
 usage = """Usage:
-python unix-fd-service.py <file name> &
-python unix-fd-client.py
+python3 unix-fd-service.py <file name> &
+python3 unix-fd-client.py
 """
 
 # Copyright (C) 2004-2006 Red Hat Inc. <http://www.redhat.com/>
@@ -48,18 +50,18 @@ def main():
 
     except dbus.DBusException:
         print_exc()
-        print usage
+        print(usage)
         sys.exit(1)
 
     iface = dbus.Interface(remote_object, "com.example.SampleInterface")
 
     # UnixFd is an opaque object that takes care of received fd
     fd_object = iface.GetFd()
-    print fd_object
+    print("client: fd_object = %s" % fd_object)
 
     # Once we take the fd number, we are in charge of closing it!
     fd = fd_object.take()
-    print fd
+    print("client: fd = %s" % fd)
 
     # We want to encapsulate the integer fd into a Python file or socket object
     f = os.fdopen(fd, "r")
@@ -72,7 +74,7 @@ def main():
     # otherwise it 'leaks' (stays open until program exits).
 
     f.seek(0)
-    print f.read()
+    print("client: read from fd = %r" % f.read())
 
 if __name__ == '__main__':
     main()

@@ -1,9 +1,11 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
+
+from __future__ import print_function
 
 usage = """Usage:
-python example-signal-emitter.py &
-python example-signal-recipient.py
-python example-signal-recipient.py --exit-service
+python3 example-signal-emitter.py &
+python3 example-signal-recipient.py
+python3 example-signal-recipient.py --exit-service
 """
 
 # Copyright (C) 2004-2006 Red Hat Inc. <http://www.redhat.com/>
@@ -66,6 +68,6 @@ if __name__ == '__main__':
     object = TestObject(session_bus)
 
     loop = GLib.MainLoop()
-    print "Running example signal emitter service."
-    print usage
+    print("Running example signal emitter service.")
+    print(usage)
     loop.run()

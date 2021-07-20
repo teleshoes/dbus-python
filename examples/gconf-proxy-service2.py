@@ -1,4 +1,6 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
+
+from __future__ import print_function
 
 # Example of implementing an entire subtree of objects using
 # a FallbackObject.
@@ -37,7 +39,12 @@ import dbus.mainloop.glib
 import dbus.service
 
 from gi.repository import GLib
-import gconf
+
+try:
+    import gconf
+except ImportError:
+    print('service: gconf not available, using mock implementation')
+    gconf = None
 
 dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
 
@@ -47,22 +54,37 @@ name = dbus.service.BusName("com.example.GConfProxy", dbus.SessionBus())
 class GConfObject(dbus.service.FallbackObject):
     def __init__(self):
         dbus.service.FallbackObject.__init__(self, dbus.SessionBus(), '/org/gnome/GConf')
-        self.client = gconf.client_get_default()
+        if gconf is None:
+            self.client = None
+        else:
+            self.client = gconf.client_get_default()
 
     @dbus.service.method("org.gnome.GConf", in_signature='', out_signature='s', rel_path_keyword='object_path')
     def getString(self, object_path):
+        if self.client is None:
+            return '<gconf not available>'
+
         return self.client.get_string(object_path)
 
     @dbus.service.method("org.gnome.GConf", in_signature='s', out_signature='', rel_path_keyword='object_path')
     def setString(self, value, object_path):
+        if self.client is None:
+            raise RuntimeError('gconf not available')
+
         self.client.set_string(object_path, value)
 
     @dbus.service.method("org.gnome.GConf", in_signature='', out_signature='i', rel_path_keyword='object_path')
     def getInt(self, object_path):
+        if self.client is None:
+            return 42
+
         return self.client.get_int(object_path)
 
     @dbus.service.method("org.gnome.GConf", in_signature='i', out_signature='', rel_path_keyword='object_path')
     def setInt(self, value, object_path):
+        if self.client is None:
+            raise RuntimeError('gconf not available')
+
         self.client.set_int(object_path, value)
 
 gconf_service = GConfObject()
