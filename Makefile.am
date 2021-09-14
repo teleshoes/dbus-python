@@ -4,7 +4,7 @@ installed_testdir = ${libexecdir}/installed-tests/${PACKAGE_TARNAME}
 installed_test_testdir = ${installed_testdir}/test
 installed_test_metadir = ${datadir}/installed-tests/${PACKAGE_TARNAME}
 
-AM_DISTCHECK_CONFIGURE_FLAGS = PYTHON=$(PYTHON)
+AM_DISTCHECK_CONFIGURE_FLAGS = PYTHON=$(PYTHON) --with-python-prefix='$${prefix}' --with-python-exec-prefix='$${exec_prefix}'
 
 ACLOCAL_AMFLAGS = -I m4
 SUBDIRS = dbus-gmain .
