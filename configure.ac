@@ -86,7 +86,14 @@ AM_PATH_PYTHON
 AM_CONDITIONAL([HAVE_PYTHON_3],
   [$PYTHON -c "import sys; sys.exit(sys.version < '3')"])
 
-PLATFORM=`$PYTHON -c "from __future__ import print_function; from distutils import util; print(util.get_platform())"`
+PLATFORM=`$PYTHON -c "
+from __future__ import print_function
+try:
+    import sysconfig
+except ImportError:
+    from distutils import util as sysconfig
+print(sysconfig.get_platform())
+"`
 AC_SUBST(PLATFORM)
 
 AC_ARG_ENABLE([installed-tests],
