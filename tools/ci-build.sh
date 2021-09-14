@@ -45,7 +45,8 @@ if [ -n "$ci_docker" ]; then
 		--env=dbus_ci_system_python="${dbus_ci_system_python-}" \
 		--privileged \
 		ci-image \
-		tools/ci-build.sh
+		tools/ci-build.sh \
+		"$@"
 fi
 
 if [ -n "$dbus_ci_system_python" ]; then
@@ -77,6 +78,7 @@ e=0
 	cd "$builddir" && "${srcdir}/configure" \
 		--enable-installed-tests \
 		--prefix="$prefix" \
+		"$@" \
 		${NULL}
 ) || e=1
 if [ "x$e" != x0 ]; then

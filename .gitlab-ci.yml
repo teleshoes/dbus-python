@@ -29,6 +29,7 @@ before_script:
   - ./tools/ci-install.sh
 
 variables:
+  dbus_ci_configure_flags: ''
   ci_in_docker: "yes"
   ci_parallel: "2"
   ci_sudo: "yes"
@@ -41,7 +42,7 @@ build:python2.7:
     dbus_ci_system_python: python
   script: &script
     - chown -R user .
-    - runuser -u user env PATH="/usr/lib/ccache:$PATH" ./tools/ci-build.sh
+    - runuser -u user -- env PATH="/usr/lib/ccache:$PATH" ./tools/ci-build.sh $dbus_ci_configure_flags
 
 build:python2.7-dbg:
   stage: build
@@ -102,6 +103,8 @@ build:python3.10:
     ci_distro: ubuntu
     ci_suite: impish
     dbus_ci_system_python: python3.10
+    dbus_ci_configure_flags: --disable-documentation
+    DISTCHECK_CONFIGURE_FLAGS: --disable-documentation
   script: *script
 
 # vim:set sw=2 sts=2 et:
