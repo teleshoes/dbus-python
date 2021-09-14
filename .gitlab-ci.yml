@@ -36,27 +36,15 @@ variables:
   ci_distro: "debian"
   ci_suite: "buster"
 
-build:python2.7:
-  stage: build
-  variables:
-    dbus_ci_system_python: python
-  script: &script
-    - chown -R user .
-    - runuser -u user -- env PATH="/usr/lib/ccache:$PATH" ./tools/ci-build.sh $dbus_ci_configure_flags
-
-build:python2.7-dbg:
-  stage: build
-  variables:
-    dbus_ci_system_python: python-dbg
-  script: *script
-
 build:python3.5:
   stage: build
   image: "debian:stretch-slim"
   variables:
     ci_suite: stretch
     dbus_ci_system_python: python3
-  script: *script
+  script: &script
+    - chown -R user .
+    - runuser -u user -- env PATH="/usr/lib/ccache:$PATH" ./tools/ci-build.sh $dbus_ci_configure_flags
 
 build:python3.5-dbg:
   stage: build
@@ -92,7 +80,6 @@ build:python3.9-dbg:
   variables:
     ci_suite: bullseye
     dbus_ci_system_python: python3.9-dbg
-    dbus_ci_system_python_module_prefix: python3-
     dbus_ci_system_python_module_suffix: -dbg
   script: *script
 

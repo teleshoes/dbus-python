@@ -45,11 +45,6 @@ char dbus_py_Message_get_args_list__doc__[] = (
 "       it's off by default for consistency.\n"
 "\n"
 "       If false (default), convert them into a dbus.Array of Bytes.\n"
-#ifndef PY3
-"   `utf8_strings` : bool\n"
-"       If true, return D-Bus strings as Python `bytes` objects (in UTF-8).\n"
-"       If false (default), return D-Bus strings as Python `unicode` objects.\n"
-#endif
 "\n"
 "Most of the type mappings should be fairly obvious:\n"
 "\n"
@@ -75,9 +70,6 @@ char dbus_py_Message_get_args_list__doc__[] = (
 
 typedef struct {
     int byte_arrays;
-#ifndef PY3
-    int utf8_strings;
-#endif
 } Message_get_args_options;
 
 static PyObject *_message_iter_get_pyobject(DBusMessageIter *iter,
@@ -205,7 +197,7 @@ _message_iter_get_pyobject(DBusMessageIter *iter,
     if (variant_level > 0 && type != DBUS_TYPE_VARIANT) {
         PyObject *variant_level_int;
 
-        variant_level_int = NATIVEINT_FROMLONG(variant_level);
+        variant_level_int = PyLong_FromLong(variant_level);
         if (!variant_level_int) {
             return NULL;
         }
@@ -232,28 +224,16 @@ _message_iter_get_pyobject(DBusMessageIter *iter,
         case DBUS_TYPE_STRING:
             DBG("%s", "found a string");
             dbus_message_iter_get_basic(iter, &u.str);
-#ifndef PY3
-            if (opts->utf8_strings) {
-                args = Py_BuildValue("(s)", u.str);
-                if (!args) break;
-                ret = PyObject_Call((PyObject *)&DBusPyUTF8String_Type,
-                                    args, kwargs);
+            unicode = PyUnicode_DecodeUTF8(u.str, strlen(u.str), NULL);
+            if (!unicode) {
+                break;
             }
-            else {
-#endif
-                unicode = PyUnicode_DecodeUTF8(u.str, strlen(u.str), NULL);
-                if (!unicode) {
-                    break;
-                }
-                args = Py_BuildValue("(N)", unicode);
-                if (!args) {
-                    break;
-                }
-                ret = PyObject_Call((PyObject *)&DBusPyString_Type,
-                                    args, kwargs);
-#ifndef PY3
+            args = Py_BuildValue("(N)", unicode);
+            if (!args) {
+                break;
             }
-#endif
+            ret = PyObject_Call((PyObject *)&DBusPyString_Type,
+                                args, kwargs);
             break;
 
         case DBUS_TYPE_SIGNATURE:
@@ -410,11 +390,7 @@ _message_iter_get_pyobject(DBusMessageIter *iter,
                      * for an empty byte-blob... */
                     u.str = "";
                 }
-#ifdef PY3
                 args = Py_BuildValue("(y#)", u.str, (Py_ssize_t)n);
-#else
-                args = Py_BuildValue("(s#)", u.str, (Py_ssize_t)n);
-#endif
                 if (!args) break;
                 ret = PyObject_Call((PyObject *)&DBusPyByteArray_Type,
                                     args, kwargs);
@@ -498,13 +474,8 @@ _message_iter_get_pyobject(DBusMessageIter *iter,
 PyObject *
 dbus_py_Message_get_args_list(Message *self, PyObject *args, PyObject *kwargs)
 {
-#ifdef PY3
     Message_get_args_options opts = { 0 };
     static char *argnames[] = { "byte_arrays", NULL };
-#else
-    Message_get_args_options opts = { 0, 0 };
-    static char *argnames[] = { "byte_arrays", "utf8_strings", NULL };
-#endif
     PyObject *list;
     DBusMessageIter iter;
 
@@ -524,16 +495,9 @@ dbus_py_Message_get_args_list(Message *self, PyObject *args, PyObject *kwargs)
                         "arguments");
         return NULL;
     }
-#ifdef PY3
     if (!PyArg_ParseTupleAndKeywords(args, kwargs, "|i:get_args_list",
                                      argnames,
                                      &(opts.byte_arrays))) return NULL;
-#else
-    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "|ii:get_args_list",
-                                     argnames,
-                                     &(opts.byte_arrays),
-                                     &(opts.utf8_strings))) return NULL;
-#endif
     if (!self->msg) return DBusPy_RaiseUnusableMessage();
 
     list = PyList_New(0);

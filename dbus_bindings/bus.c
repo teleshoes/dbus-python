@@ -45,13 +45,7 @@ DBusPyConnection_NewForBus(PyTypeObject *cls, PyObject *args, PyObject *kwargs)
 
     dbus_error_init(&error);
 
-    if (first &&
-#ifdef PY3
-        PyUnicode_Check(first)
-#else
-        PyBytes_Check(first)
-#endif
-        )
+    if (first && PyUnicode_Check(first))
     {
         dbus_bool_t ret;
 
@@ -72,7 +66,7 @@ DBusPyConnection_NewForBus(PyTypeObject *cls, PyObject *args, PyObject *kwargs)
 
         return (PyObject *)self;
     }
-    else if (!first || INTORLONG_CHECK(first))
+    else if (!first || PyLong_Check(first))
     {
         long type;
         PyObject *libdbusconn;
@@ -156,7 +150,7 @@ DBusPyConnection_GetUniqueName(Connection *self, PyObject *args UNUSED)
         return DBusPyException_SetString("This connection has no unique name "
                                          "yet");
     }
-    return NATIVESTR_FROMSTR(name);
+    return PyUnicode_FromString(name);
 }
 
 PyObject *

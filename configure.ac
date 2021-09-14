@@ -81,19 +81,7 @@ AS_IF([test -z "$PYTHON_VERSION" && test -z "$PYTHON"], [PYTHON_VERSION=3])
 AX_PYTHON_DEVEL([>= '2.7'])
 AM_PATH_PYTHON
 
-# This command exits 0 (success) if sys.version >= "3", or 1 (failure)
-# if sys.version < "3" (i.e. starts with "2").
-AM_CONDITIONAL([HAVE_PYTHON_3],
-  [$PYTHON -c "import sys; sys.exit(sys.version < '3')"])
-
-PLATFORM=`$PYTHON -c "
-from __future__ import print_function
-try:
-    import sysconfig
-except ImportError:
-    from distutils import util as sysconfig
-print(sysconfig.get_platform())
-"`
+PLATFORM=`$PYTHON -c "import sysconfig; print(sysconfig.get_platform())"`
 AC_SUBST(PLATFORM)
 
 AC_ARG_ENABLE([installed-tests],

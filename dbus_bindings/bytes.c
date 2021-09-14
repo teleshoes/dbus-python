@@ -32,12 +32,6 @@
 
 #include "types-internal.h"
 
-#ifdef PY3
-#define DBUS_PY_BYTE_BASE (DBusPyLongBase_Type)
-#else
-#define DBUS_PY_BYTE_BASE (DBusPyIntBase_Type)
-#endif
-
 PyDoc_STRVAR(Byte_tp_doc,
 "dbus.Byte(integer or bytes of length 1[, variant_level])\n"
 "\n"
@@ -93,11 +87,11 @@ Byte_new(PyTypeObject *cls, PyObject *args, PyObject *kwargs)
         if (PyBytes_GET_SIZE(obj) != 1) {
             goto bad_arg;
         }
-        obj = NATIVEINT_FROMLONG((unsigned char)(PyBytes_AS_STRING(obj)[0]));
+        obj = PyLong_FromLong((unsigned char)(PyBytes_AS_STRING(obj)[0]));
         if (!obj)
             goto bad_arg;
     }
-    else if (INTORLONG_CHECK(obj)) {
+    else if (PyLong_Check(obj)) {
         /* on Python 2 this accepts either int or long */
         long i = PyLong_AsLong(obj);
         long my_variant_level;
@@ -105,13 +99,9 @@ Byte_new(PyTypeObject *cls, PyObject *args, PyObject *kwargs)
         if (i == -1 && PyErr_Occurred())
             goto bad_arg;
 
-#ifdef PY3
         my_variant_level = dbus_py_variant_level_get(obj);
         if (my_variant_level < 0)
             return NULL;
-#else
-        my_variant_level = ((DBusPyIntBase *)obj)->variant_level;
-#endif
         if (Py_TYPE(obj) == cls && my_variant_level == variantness) {
             Py_INCREF(obj);
             return obj;
@@ -128,7 +118,7 @@ Byte_new(PyTypeObject *cls, PyObject *args, PyObject *kwargs)
     tuple = Py_BuildValue("(N)", obj);
     if (!tuple) return NULL;
 
-    obj = DBUS_PY_BYTE_BASE.tp_new(cls, tuple, kwargs);
+    obj = DBusPyLongBase_Type.tp_new(cls, tuple, kwargs);
     Py_CLEAR(tuple);
     return obj;
 
@@ -144,7 +134,7 @@ bad_range:
 static PyObject *
 Byte_tp_str(PyObject *self)
 {
-    long i = NATIVEINT_ASLONG(self);
+    long i = PyLong_AsLong(self);
     unsigned char str[2] = { 0, 0 };
 
     if (i == -1 && PyErr_Occurred())
@@ -189,7 +179,7 @@ PyTypeObject DBusPyByte_Type = {
         0,                                      /* tp_methods */
         0,                                      /* tp_members */
         0,                                      /* tp_getset */
-        DEFERRED_ADDRESS(&DBUS_PY_BYTE_BASE),   /* tp_base */
+        DEFERRED_ADDRESS(&DBusPyLongBase_Type), /* tp_base */
         0,                                      /* tp_dict */
         0,                                      /* tp_descr_get */
         0,                                      /* tp_descr_set */
@@ -198,12 +188,6 @@ PyTypeObject DBusPyByte_Type = {
         0,                                      /* tp_alloc */
         Byte_new,                               /* tp_new */
 };
-
-#ifdef PY3
-#define DBUS_PY_BYTEARRAY_BASE (DBusPyBytesBase_Type)
-#else
-#define DBUS_PY_BYTEARRAY_BASE (DBusPyStrBase_Type)
-#endif
 
 PyDoc_STRVAR(ByteArray_tp_doc,
 "ByteArray(str)\n"
@@ -265,7 +249,7 @@ PyTypeObject DBusPyByteArray_Type = {
         0,                                      /* tp_methods */
         0,                                      /* tp_members */
         0,                                      /* tp_getset */
-        DEFERRED_ADDRESS(&DBUS_PY_BYTEARRAY_BASE), /* tp_base */
+        DEFERRED_ADDRESS(&DBusPyBytesBase_Type), /* tp_base */
         0,                                      /* tp_dict */
         0,                                      /* tp_descr_get */
         0,                                      /* tp_descr_set */
@@ -278,17 +262,11 @@ PyTypeObject DBusPyByteArray_Type = {
 dbus_bool_t
 dbus_py_init_byte_types(void)
 {
-    DBusPyByte_Type.tp_base = &DBUS_PY_BYTE_BASE;
+    DBusPyByte_Type.tp_base = &DBusPyLongBase_Type;
     if (PyType_Ready(&DBusPyByte_Type) < 0) return 0;
-#ifndef PY3
-    DBusPyByte_Type.tp_print = NULL;
-#endif
 
-    DBusPyByteArray_Type.tp_base = &DBUS_PY_BYTEARRAY_BASE;
+    DBusPyByteArray_Type.tp_base = &DBusPyBytesBase_Type;
     if (PyType_Ready(&DBusPyByteArray_Type) < 0) return 0;
-#ifndef PY3
-    DBusPyByteArray_Type.tp_print = NULL;
-#endif
 
     return 1;
 }

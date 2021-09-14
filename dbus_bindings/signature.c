@@ -146,16 +146,11 @@ Signature_tp_iter(PyObject *self)
 
     if (!iter) return NULL;
 
-#ifdef PY3
     self_as_bytes = PyUnicode_AsUTF8String(self);
     if (!self_as_bytes) {
         Py_CLEAR(iter);
         return NULL;
     }
-#else
-    self_as_bytes = self;
-    Py_INCREF(self_as_bytes);
-#endif
 
     if (PyBytes_GET_SIZE(self_as_bytes) > 0) {
         iter->bytes = self_as_bytes;
@@ -235,9 +230,6 @@ dbus_py_init_signature(void)
 
     DBusPySignature_Type.tp_base = &DBusPyStrBase_Type;
     if (PyType_Ready(&DBusPySignature_Type) < 0) return 0;
-#ifndef PY3
-    DBusPySignature_Type.tp_print = NULL;
-#endif
 
     return 1;
 }

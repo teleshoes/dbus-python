@@ -567,7 +567,7 @@ Connection_get_unix_fd (Connection *self, PyObject *unused UNUSED)
     ok = dbus_connection_get_unix_fd (self->conn, &fd);
     Py_END_ALLOW_THREADS
     if (!ok) Py_RETURN_NONE;
-    return NATIVEINT_FROMLONG(fd);
+    return PyLong_FromLong(fd);
 }
 
 PyDoc_STRVAR(Connection_get_peer_unix_user__doc__,
@@ -979,7 +979,7 @@ Connection_list_exported_child_objects (Connection *self, PyObject *args,
         return NULL;
     }
     for (kid_ptr = kids; *kid_ptr; kid_ptr++) {
-        PyObject *tmp = NATIVESTR_FROMSTR(*kid_ptr);
+        PyObject *tmp = PyUnicode_FromString(*kid_ptr);
 
         if (!tmp) {
             Py_CLEAR(ret);

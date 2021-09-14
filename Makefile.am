@@ -175,12 +175,6 @@ nobase_python_PYTHON = \
     dbus/service.py \
     dbus/types.py
 
-if !HAVE_PYTHON_3
-nobase_python_PYTHON += \
-    dbus/gobject_service.py \
-    $(NULL)
-endif
-
 check_py_sources = $(nobase_python_PYTHON)
 include $(top_srcdir)/tools/check-coding-style.mk
 
@@ -241,6 +235,7 @@ dist_test_sh = \
 
 dist_test_py = \
 	test/test-client.py \
+	test/test-exception-py3.py \
 	test/test-p2p.py \
 	test/test-signals.py \
 	test/test-standalone.py \
@@ -258,12 +253,6 @@ dist_test_extra_scripts = \
 	test/test-service.py \
 	test/wait-for-name.py \
 	$(NULL)
-
-if HAVE_PYTHON_3
-dist_test_py += test/test-exception-py3.py
-else
-dist_test_py += test/test-exception-py2.py
-endif
 
 test_programs = \
 	test/test-import-repeatedly \

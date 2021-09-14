@@ -450,11 +450,7 @@ PyTypeObject DBusPyConnection_Type = {
     0,                      /*tp_getattro*/
     0,                      /*tp_setattro*/
     0,                      /*tp_as_buffer*/
-#ifdef PY3
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
-#else
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_WEAKREFS | Py_TPFLAGS_BASETYPE,
-#endif
     Connection_tp_doc,      /*tp_doc*/
     0,                      /*tp_traverse*/
     0,                      /*tp_clear*/

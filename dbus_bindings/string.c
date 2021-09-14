@@ -30,103 +30,6 @@
 #include "types-internal.h"
 #include <structmember.h>
 
-#ifndef PY3
-/* UTF-8 string representation ====================================== */
-
-PyDoc_STRVAR(UTF8String_tp_doc,
-"dbus.UTF8String(value: bytes or unicode[, variant_level: int=0])\n"
-"\n"
-"A string represented using UTF-8 - a subtype of `bytes`.\n"
-"This type is only available in Python 2.\n"
-"\n"
-"All strings on D-Bus are required to be valid Unicode; in the \"wire\n"
-"protocol\" they're transported as UTF-8.\n"
-"\n"
-"By default, when byte arrays are converted from D-Bus to Python, they\n"
-"come out as a `dbus.String`, which is a subtype of `unicode`.\n"
-"If you prefer to get UTF-8 strings (as instances of this class) or you\n"
-"want to avoid the conversion overhead of going from UTF-8 to Python's\n"
-"internal Unicode representation, you can pass the ``utf8_strings=True``\n"
-"keyword argument to any of these methods:\n"
-"\n"
-"* any D-Bus method proxy, or ``connect_to_signal``, on the objects returned\n"
-"  by `Bus.get_object`\n"
-"* any D-Bus method on a `dbus.Interface`\n"
-"* `dbus.Interface.connect_to_signal`\n"
-"* `Bus.add_signal_receiver`\n"
-"\n"
-"If value is a bytes object it must be valid UTF-8.\n"
-"\n"
-"variant_level must be non-negative; the default is 0.\n"
-"\n"
-".. py:attribute:: variant_level\n"
-"\n"
-"    Indicates how many nested Variant containers this object\n"
-"    is contained in: if a message's wire format has a variant containing a\n"
-"    variant containing a string, this is represented in Python by a\n"
-"    String or UTF8String with variant_level==2.\n"
-"\n"
-":Since: 0.80 (in older versions, use dbus.String)\n"
-);
-
-static PyObject *
-UTF8String_tp_new(PyTypeObject *cls, PyObject *args, PyObject *kwargs)
-{
-    const char *str = NULL;
-    long variantness = 0;
-    static char *argnames[] = {"value", "variant_level", NULL};
-    PyObject *unicode;
-
-    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "s|l:__new__", argnames,
-                                     &str, &variantness)) return NULL;
-    unicode = PyUnicode_DecodeUTF8(str, strlen(str), NULL);
-    if (!unicode) return NULL;
-    Py_CLEAR(unicode);
-    return (DBusPyStrBase_Type.tp_new)(cls, args, kwargs);
-}
-
-PyTypeObject DBusPyUTF8String_Type = {
-    PyVarObject_HEAD_INIT(DEFERRED_ADDRESS(&PyType_Type), 0)
-    "dbus.UTF8String",
-    0,
-    0,
-    0,                                      /* tp_dealloc */
-    0,                                      /* tp_print */
-    0,                                      /* tp_getattr */
-    0,                                      /* tp_setattr */
-    0,                                      /* tp_compare */
-    0,                                      /* tp_repr */
-    0,                                      /* tp_as_number */
-    0,                                      /* tp_as_sequence */
-    0,                                      /* tp_as_mapping */
-    0,                                      /* tp_hash */
-    0,                                      /* tp_call */
-    0,                                      /* tp_str */
-    0,                                      /* tp_getattro */
-    0,                                      /* tp_setattro */
-    0,                                      /* tp_as_buffer */
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE, /* tp_flags */
-    UTF8String_tp_doc,                      /* tp_doc */
-    0,                                      /* tp_traverse */
-    0,                                      /* tp_clear */
-    0,                                      /* tp_richcompare */
-    0,                                      /* tp_weaklistoffset */
-    0,                                      /* tp_iter */
-    0,                                      /* tp_iternext */
-    0,                                      /* tp_methods */
-    0,                                      /* tp_members */
-    0,                                      /* tp_getset */
-    DEFERRED_ADDRESS(&DBusPyStrBase_Type),   /* tp_base */
-    0,                                      /* tp_dict */
-    0,                                      /* tp_descr_get */
-    0,                                      /* tp_descr_set */
-    0,                                      /* tp_dictoffset */
-    0,                                      /* tp_init */
-    0,                                      /* tp_alloc */
-    UTF8String_tp_new,                      /* tp_new */
-};
-#endif  /* !PY3 */
-
 /* Object path ====================================================== */
 
 PyDoc_STRVAR(ObjectPath_tp_doc,
@@ -339,21 +242,9 @@ dbus_py_init_string_types(void)
     }
     DBusPyString_Type.tp_base = &PyUnicode_Type;
     if (PyType_Ready(&DBusPyString_Type) < 0) return 0;
-#ifndef PY3
-    DBusPyString_Type.tp_print = NULL;
-#endif
-
-#ifndef PY3
-    DBusPyUTF8String_Type.tp_base = &DBusPyStrBase_Type;
-    if (PyType_Ready(&DBusPyUTF8String_Type) < 0) return 0;
-    DBusPyUTF8String_Type.tp_print = NULL;
-#endif
 
     DBusPyObjectPath_Type.tp_base = &DBusPyStrBase_Type;
     if (PyType_Ready(&DBusPyObjectPath_Type) < 0) return 0;
-#ifndef PY3
-    DBusPyObjectPath_Type.tp_print = NULL;
-#endif
 
     return 1;
 }
@@ -369,11 +260,6 @@ dbus_py_insert_string_types(PyObject *this_module)
     if (PyModule_AddObject(this_module, "String",
                            (PyObject *)&DBusPyString_Type) < 0) return 0;
 
-#ifndef PY3
-    Py_INCREF(&DBusPyUTF8String_Type);
-    if (PyModule_AddObject(this_module, "UTF8String",
-                           (PyObject *)&DBusPyUTF8String_Type) < 0) return 0;
-#endif
 
     return 1;
 }

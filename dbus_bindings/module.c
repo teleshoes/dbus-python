@@ -235,17 +235,12 @@ static PyMethodDef module_functions[] = {
 };
 
 PyMODINIT_FUNC
-#ifdef PY3
 PyInit__dbus_bindings(void)
-#else
-init_dbus_bindings(void)
-#endif
 {
     PyObject *this_module = NULL, *c_api;
     static const int API_count = DBUS_BINDINGS_API_COUNT;
     static _dbus_py_func_ptr dbus_bindings_API[DBUS_BINDINGS_API_COUNT];
 
-#ifdef PY3
     static struct PyModuleDef moduledef = {
         PyModuleDef_HEAD_INIT,
         "_dbus_bindings",       /* m_name */
@@ -257,7 +252,6 @@ init_dbus_bindings(void)
         NULL,                   /* m_clear */
         NULL                    /* m_free */
     };
-#endif
 
     dbus_bindings_API[0] = (_dbus_py_func_ptr)&API_count;
     dbus_bindings_API[1] = (_dbus_py_func_ptr)DBusPyConnection_BorrowDBusConnection;
@@ -281,12 +275,7 @@ init_dbus_bindings(void)
     if (!dbus_py_init_conn_types()) goto init_error;
     if (!dbus_py_init_server_types()) goto init_error;
 
-#ifdef PY3
     this_module = PyModule_Create(&moduledef);
-#else
-    this_module = Py_InitModule3("_dbus_bindings",
-                                 module_functions, module_doc);
-#endif
     if (!this_module) goto init_error;
 
     if (!dbus_py_insert_abstract_types(this_module)) goto init_error;
@@ -409,26 +398,17 @@ init_dbus_bindings(void)
     if (PyModule_AddIntConstant(this_module, "_python_version",
                                 PY_VERSION_HEX) < 0) goto init_error;
 
-#ifdef PY3
     c_api = PyCapsule_New((void *)dbus_bindings_API,
                           PYDBUS_CAPSULE_NAME, NULL);
-#else
-    c_api = PyCObject_FromVoidPtr ((void *)dbus_bindings_API, NULL);
-#endif
     if (!c_api) {
         goto init_error;
     }
     PyModule_AddObject(this_module, "_C_API", c_api);
 
-#ifdef PY3
     return this_module;
   init_error:
     Py_CLEAR(this_module);
     return NULL;
-#else
-  init_error:
-    return;
-#endif
 }
 
 /* vim:set ft=c cino< sw=4 sts=4 et: */

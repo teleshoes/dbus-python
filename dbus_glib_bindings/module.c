@@ -29,11 +29,7 @@
 #include <dbus/dbus-python.h>
 #include <dbus-gmain/dbus-gmain.h>
 
-#ifdef PY3
 PyMODINIT_FUNC PyInit__dbus_glib_bindings(void);
-#else
-PyMODINIT_FUNC init_dbus_glib_bindings(void);
-#endif
 
 #if defined(__GNUC__)
 #   if __GNUC__ >= 3
@@ -175,7 +171,6 @@ static PyMethodDef module_functions[] = {
     {NULL, NULL, 0, NULL}
 };
 
-#ifdef PY3
 PyMODINIT_FUNC
 PyInit__dbus_glib_bindings(void)
 {
@@ -201,17 +196,5 @@ PyInit__dbus_glib_bindings(void)
     }
     return this_module;
 }
-#else
-PyMODINIT_FUNC
-init_dbus_glib_bindings(void)
-{
-    PyObject *this_module;
-
-    if (import_dbus_bindings("_dbus_glib_bindings") < 0) return;
-    this_module = Py_InitModule3 ("_dbus_glib_bindings", module_functions,
-                                  module_doc);
-    if (!this_module) return;
-}
-#endif
 
 /* vim:set ft=c cino< sw=4 sts=4 et: */

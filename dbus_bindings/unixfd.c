@@ -77,7 +77,7 @@ make_fd(PyObject *arg, int *fd)
 {
     long fd_arg;
 
-    if (INTORLONG_CHECK(arg))
+    if (PyLong_Check(arg))
     {
         /* on Python 2 this accepts either int or long */
         fd_arg = PyLong_AsLong(arg);

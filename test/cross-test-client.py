@@ -35,23 +35,12 @@ except ImportError:
 from dbus import (
     Array, Boolean, Byte, ByteArray, Double, Int16, Int32, Int64,
     Interface, SessionBus, String, UInt16, UInt32, UInt64)
-from dbus._compat import is_py2, is_py3
 import dbus.glib
-
-if is_py2:
-    from dbus import UTF8String
 
 from crosstest import (
     CROSS_TEST_BUS_NAME, CROSS_TEST_PATH, INTERFACE_CALLBACK_TESTS,
     INTERFACE_SIGNAL_TESTS, INTERFACE_SINGLE_TESTS, INTERFACE_TESTS,
     SignalTestsImpl)
-
-if is_py3:
-    def make_long(n):
-        return n
-else:
-    def make_long(n):
-        return long(n)
 
 
 logging.basicConfig()
@@ -246,8 +235,6 @@ class Client(SignalTestsImpl):
 
         # Main tests
         self.assert_method_eq(INTERFACE_TESTS, String('foo', variant_level=1), 'Identity', String('foo'))
-        if is_py2:
-            self.assert_method_eq(INTERFACE_TESTS, String('foo', variant_level=1), 'Identity', UTF8String('foo'))
         self.assert_method_eq(INTERFACE_TESTS, Byte(42, variant_level=1), 'Identity', Byte(42))
         self.assert_method_eq(INTERFACE_TESTS, Byte(42, variant_level=23), 'Identity', Byte(42, variant_level=23))
         self.assert_method_eq(INTERFACE_TESTS, Double(42.5, variant_level=1), 'Identity', 42.5)
@@ -271,11 +258,10 @@ class Client(SignalTestsImpl):
         for i in (-0x7fffffff-1, 0, 42, 0x7fffffff):
             self.assert_method_eq(INTERFACE_TESTS, i, 'IdentityInt32', Int32(i))
         for i in (0, 42, 0xffffffff):
-            i = make_long(i)
             self.assert_method_eq(INTERFACE_TESTS, i, 'IdentityUInt32', UInt32(i))
         MANY = 1
         for n in (0x8000, 0x10000, 0x10000, 0x10000):
-            MANY *= make_long(n)
+            MANY *= n
         for i in (-MANY, 0, 42, MANY-1):
             self.assert_method_eq(INTERFACE_TESTS, i, 'IdentityInt64', Int64(i))
         for i in (0, 42, 2*MANY - 1):

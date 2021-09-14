@@ -392,7 +392,7 @@ static PyObject *
 Message_get_type(Message *self, PyObject *unused UNUSED)
 {
     if (!self->msg) return DBusPy_RaiseUnusableMessage();
-    return NATIVEINT_FROMLONG(dbus_message_get_type(self->msg));
+    return PyLong_FromLong(dbus_message_get_type(self->msg));
 }
 
 PyDoc_STRVAR(Message_get_serial__doc__,
@@ -466,7 +466,7 @@ Message_get_member(Message *self, PyObject *unused UNUSED)
     if (!c_str) {
         Py_RETURN_NONE;
     }
-    return NATIVESTR_FROMSTR(c_str);
+    return PyUnicode_FromString(c_str);
 }
 
 PyDoc_STRVAR(Message_has_member__doc__,
@@ -541,7 +541,7 @@ Message_get_path_decomposed(Message *self, PyObject *unused UNUSED)
         Py_RETURN_NONE;
     }
     for (ptr = paths; *ptr; ptr++) {
-        PyObject *str = NATIVESTR_FROMSTR(*ptr);
+        PyObject *str = PyUnicode_FromString(*ptr);
 
         if (!str) {
             Py_CLEAR(ret);
@@ -627,7 +627,7 @@ Message_get_sender(Message *self, PyObject *unused UNUSED)
     if (!c_str) {
         Py_RETURN_NONE;
     }
-    return NATIVESTR_FROMSTR(c_str);
+    return PyUnicode_FromString(c_str);
 }
 
 PyDoc_STRVAR(Message_has_sender__doc__,
@@ -673,7 +673,7 @@ Message_get_destination(Message *self, PyObject *unused UNUSED)
     if (!c_str) {
         Py_RETURN_NONE;
     }
-    return NATIVESTR_FROMSTR(c_str);
+    return PyUnicode_FromString(c_str);
 }
 
 PyDoc_STRVAR(Message_has_destination__doc__,
@@ -718,7 +718,7 @@ Message_get_interface(Message *self, PyObject *unused UNUSED)
     if (!c_str) {
         Py_RETURN_NONE;
     }
-    return NATIVESTR_FROMSTR(c_str);
+    return PyUnicode_FromString(c_str);
 }
 
 PyDoc_STRVAR(Message_has_interface__doc__,
@@ -763,7 +763,7 @@ Message_get_error_name(Message *self, PyObject *unused UNUSED)
     if (!c_str) {
         Py_RETURN_NONE;
     }
-    return NATIVESTR_FROMSTR(c_str);
+    return PyUnicode_FromString(c_str);
 }
 
 PyDoc_STRVAR(Message_set_error_name__doc__,

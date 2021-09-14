@@ -35,23 +35,8 @@
  */
 #include <bytesobject.h>
 
-/* In Python 2.x, we need this to define the type of PyLongObject */
-#ifndef PY3
-#include <longintrepr.h>
-#endif
-
 #ifndef DBUS_BINDINGS_TYPES_INTERNAL_H
 #define DBUS_BINDINGS_TYPES_INTERNAL_H
-
-#ifndef PY3
-extern PyTypeObject DBusPyIntBase_Type;
-DEFINE_CHECK(DBusPyIntBase)
-
-typedef struct {
-    PyIntObject base;
-    long variant_level;
-} DBusPyIntBase;
-#endif
 
 extern PyTypeObject DBusPyLongBase_Type;
 DEFINE_CHECK(DBusPyLongBase)
@@ -72,10 +57,8 @@ typedef struct {
 extern PyTypeObject DBusPyStrBase_Type;
 DEFINE_CHECK(DBusPyStrBase)
 
-#ifdef PY3
 extern PyTypeObject DBusPyBytesBase_Type;
 DEFINE_CHECK(DBusPyBytesBase)
-#endif
 
 dbus_int16_t dbus_py_int16_range_check(PyObject *);
 dbus_uint16_t dbus_py_uint16_range_check(PyObject *);

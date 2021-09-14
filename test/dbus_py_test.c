@@ -28,11 +28,7 @@
 #include <Python.h>
 #include <dbus/dbus-python.h>
 
-#ifdef PY3
 PyMODINIT_FUNC PyInit_dbus_py_test(void);
-#else
-PyMODINIT_FUNC initdbus_py_test(void);
-#endif
 
 #if defined(__GNUC__)
 #   if __GNUC__ >= 3
@@ -119,7 +115,6 @@ static PyMethodDef module_functions[] = {
     {NULL, NULL, 0, NULL}
 };
 
-#ifdef PY3
 PyMODINIT_FUNC
 PyInit_dbus_py_test(void)
 {
@@ -139,16 +134,5 @@ PyInit_dbus_py_test(void)
 
     return PyModule_Create(&moduledef);
 }
-#else
-PyMODINIT_FUNC
-initdbus_py_test(void)
-{
-    PyObject *this_module;
-
-    if (import_dbus_bindings("dbus_py_test") < 0) return;
-    this_module = Py_InitModule3 ("dbus_py_test", module_functions, "");
-    if (!this_module) return;
-}
-#endif
 
 /* vim:set ft=c cino< sw=4 sts=4 et: */

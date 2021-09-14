@@ -52,7 +52,6 @@ import random
 
 from dbus.gi_service import ExportedGObject
 from gi.repository import GLib
-from dbus._compat import is_py2, is_py3
 
 
 if 'DBUS_TEST_TMPDIR' in os.environ:
@@ -168,14 +167,10 @@ class TestObject(dbus.service.Object, TestInterface):
 
     @dbus.service.method(IFACE, in_signature='s', out_signature='s')
     def AcceptUnicodeString(self, foo):
-        unicode_type = (str if is_py3 else unicode)
-        assert isinstance(foo, unicode_type), (foo, foo.__class__.__mro__)
+        assert isinstance(foo, str), (foo, foo.__class__.__mro__)
         return foo
 
-    kwargs = {}
-    if is_py2:
-        kwargs['utf8_strings'] = True
-    @dbus.service.method(IFACE, in_signature='s', out_signature='s', **kwargs)
+    @dbus.service.method(IFACE, in_signature='s', out_signature='s')
     def AcceptUTF8String(self, foo):
         assert isinstance(foo, str), (foo, foo.__class__.__mro__)
         return foo

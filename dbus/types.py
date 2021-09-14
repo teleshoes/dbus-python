@@ -11,6 +11,3 @@ from _dbus_bindings import (
     UnixFd)
 
 from dbus._compat import is_py2
-if is_py2:
-    from _dbus_bindings import UTF8String
-    __all__.append('UTF8String')
