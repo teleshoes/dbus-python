@@ -9,7 +9,7 @@ m4_define(dbus_python_micro_version, 18)
 
 AC_INIT([dbus-python],
   dbus_python_major_version.dbus_python_minor_version.dbus_python_micro_version,
-  [http://bugs.freedesktop.org/enter_bug.cgi?product=dbus&component=python])
+  [https://gitlab.freedesktop.org/dbus/dbus-python/-/issues/new])
 AC_CONFIG_MACRO_DIR([m4])
 m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES])
 AC_CONFIG_AUX_DIR([build-aux])
