@@ -1,3 +1,42 @@
+dbus Python Bindings 1.2.20 (UNRELEASED)
+========================================
+
+Dependencies:
+
+• Python 3, version 3.5 or later, is required.
+  A security-supported version (currently 3.6 or later) is recommended.
+  Python 2 is no longer supported.
+
+API changes:
+
+• dbus.gobject_service, dbus.types.UTF8String and the utf8_strings
+  keyword argument were only usable with Python 2, and therefore have
+  been removed, along with the rest of the special cases for Python 2.
+  (dbus-python!115; Simon McVittie)
+
+Fixes:
+
+• Make `distcheck` compatible with Automake 1.16.4, by forcing an
+  appropriate prefix to be used
+  (dbus-python!115; Simon McVittie)
+
+• Update AX_PYTHON_DEVEL from autoconf-archive for better
+  forwards-compatibility
+  (dbus-python!115; Simon McVittie)
+
+• Avoid various deprecation warnings in the build system
+  · distutils.sysconfig → sysconfig
+  · distutils.util → sysconfig
+  · AC_PROG_LIBTOOL → LT_INIT
+  · AC_HELP_STRING → AS_HELP_STRING
+  (dbus-python!115; Simon McVittie)
+
+• Fix CI for recent Python and Automake versions
+  (dbus-python!115; Simon McVittie)
+
+• Update bug reporting URL
+  (dbus-python!115; Simon McVittie)
+
 dbus Python Bindings 1.2.18 (2021-07-20)
 ========================================
 
