@@ -56,7 +56,7 @@ dnl it isn't like we are using C++ or Fortran.
 dnl (copied from libglade/configure.in)
 m4_define([_LT_AC_TAGCONFIG],[])
 
-AC_PROG_LIBTOOL
+LT_INIT
 AM_PROG_CC_C_O
 AC_C_INLINE
 AC_PROG_MKDIR_P
