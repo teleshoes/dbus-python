@@ -25,6 +25,8 @@
 /config.status
 /config.sub
 /configure
+/configure~
+/configure.ac~
 /dbus-python-*.tar.gz
 /dbus-python-*.tar.gz.asc
 /dbus-python.pc
