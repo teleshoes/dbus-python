@@ -39,7 +39,7 @@ import_exception(void)
         return TRUE;
     }
 
-    name = NATIVESTR_FROMSTR("dbus.exceptions");
+    name = PyUnicode_FromString("dbus.exceptions");
     if (name == NULL) {
         return FALSE;
     }
@@ -83,7 +83,7 @@ DBusPyException_ConsumeError(DBusError *error)
     }
 
     if (error->name) {
-        PyObject *name = NATIVESTR_FROMSTR(error->name);
+        PyObject *name = PyUnicode_FromString(error->name);
         int ret;
 
         if (!name)

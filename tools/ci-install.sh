@@ -76,17 +76,6 @@ if [ -n "$ci_docker" ]; then
 fi
 
 if [ -n "${dbus_ci_system_python-}" ]; then
-    if [ -z "${dbus_ci_system_python_module_prefix-}" ]; then
-        case "$dbus_ci_system_python}" in
-            (python3*)
-                dbus_ci_system_python_module_prefix=python3-
-                ;;
-            (*)
-                dbus_ci_system_python_module_prefix=python-
-                ;;
-        esac
-    fi
-
     if [ -z "${dbus_ci_system_python_module_suffix-}" ]; then
         case "$dbus_ci_system_python}" in
             (*-dbg)
@@ -138,10 +127,10 @@ case "$ci_distro" in
               sudo apt-get -qq -y install \
                 ${dbus_ci_system_python} \
                 ${dbus_ci_system_python%-dbg}-dev \
-                ${dbus_ci_system_python_module_prefix}docutils \
-                ${dbus_ci_system_python_module_prefix}gi${dbus_ci_system_python_module_suffix} \
-                ${dbus_ci_system_python_module_prefix}pip \
-                ${dbus_ci_system_python_module_prefix}setuptools \
+                python3-docutils \
+                python3-gi${dbus_ci_system_python_module_suffix} \
+                python3-pip \
+                python3-setuptools \
                 ${NULL}
 
             if [ "$dbus_ci_system_python" = python ]; then
@@ -153,10 +142,8 @@ case "$ci_distro" in
                     ;;
 
                 (*)
-                    if [ "${dbus_ci_system_python_module_prefix}" = python3- ]; then
-                        $sudo apt-get -qq -y install python3-tap
-                        have_system_tappy=yes
-                    fi
+                    $sudo apt-get -qq -y install python3-tap
+                    have_system_tappy=yes
                     ;;
             esac
 
@@ -166,8 +153,8 @@ case "$ci_distro" in
 
                 (*)
                     $sudo apt-get -qq -y install \
-                        ${dbus_ci_system_python_module_prefix}sphinx \
-                        ${dbus_ci_system_python_module_prefix}sphinx-rtd-theme \
+                        python3-sphinx \
+                        python3-sphinx-rtd-theme \
                         ${NULL}
                     have_system_sphinx=yes
                     ;;

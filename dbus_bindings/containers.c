@@ -165,27 +165,16 @@ Array_tp_init (DBusPyArray *self, PyObject *args, PyObject *kwargs)
         const char *c_str;
         PyObject *signature_as_bytes;
 
-        if (
-#ifdef PY3
-            !PyUnicode_Check(signature)
-#else
-            !PyBytes_Check(signature)
-#endif
-            )
+        if (!PyUnicode_Check(signature))
         {
             PyErr_SetString(PyExc_TypeError, "str expected");
             Py_CLEAR(signature);
             return -1;
         }
-#ifdef PY3
         if (!(signature_as_bytes = PyUnicode_AsUTF8String(signature))) {
             Py_CLEAR(signature);
             return -1;
         }
-#else
-        signature_as_bytes = signature;
-        Py_INCREF(signature_as_bytes);
-#endif
 
         c_str = PyBytes_AS_STRING(signature_as_bytes);
 
@@ -394,20 +383,15 @@ Dict_tp_init(DBusPyDict *self, PyObject *args, PyObject *kwargs)
         const char *c_str;
         PyObject *signature_as_bytes;
 
-        if (!NATIVESTR_CHECK(signature)) {
+        if (!PyUnicode_Check(signature)) {
             PyErr_SetString(PyExc_TypeError, "str expected");
             Py_CLEAR(signature);
             return -1;
         }
-#ifdef PY3
         if (!(signature_as_bytes = PyUnicode_AsUTF8String(signature))) {
             Py_CLEAR(signature);
             return -1;
         }
-#else
-        signature_as_bytes = signature;
-        Py_INCREF(signature_as_bytes);
-#endif
 
         c_str = PyBytes_AS_STRING(signature_as_bytes);
         switch (c_str[0]) {
@@ -687,31 +671,8 @@ Struct_tp_getattro(PyObject *obj, PyObject *name)
 {
     PyObject *key, *value;
 
-#ifdef PY3
     if (PyUnicode_CompareWithASCIIString(name, "signature"))
         return dbus_py_variant_level_getattro(obj, name);
-#else
-    if (PyBytes_Check(name)) {
-        Py_INCREF(name);
-    }
-    else if (PyUnicode_Check(name)) {
-        name = PyUnicode_AsEncodedString(name, NULL, NULL);
-        if (!name) {
-            return NULL;
-        }
-    }
-    else {
-        PyErr_SetString(PyExc_TypeError, "attribute name must be string");
-        return NULL;
-    }
-
-    if (strcmp(PyBytes_AS_STRING(name), "signature")) {
-        value = dbus_py_variant_level_getattro(obj, name);
-        Py_CLEAR(name);
-        return value;
-    }
-    Py_CLEAR(name);
-#endif  /* PY3 */
 
     key = PyLong_FromVoidPtr(obj);
 
@@ -777,21 +738,12 @@ dbus_py_init_container_types(void)
 
     DBusPyArray_Type.tp_base = &PyList_Type;
     if (PyType_Ready(&DBusPyArray_Type) < 0) return 0;
-#ifndef PY3
-    DBusPyArray_Type.tp_print = NULL;
-#endif
 
     DBusPyDict_Type.tp_base = &PyDict_Type;
     if (PyType_Ready(&DBusPyDict_Type) < 0) return 0;
-#ifndef PY3
-    DBusPyDict_Type.tp_print = NULL;
-#endif
 
     DBusPyStruct_Type.tp_base = &PyTuple_Type;
     if (PyType_Ready(&DBusPyStruct_Type) < 0) return 0;
-#ifndef PY3
-    DBusPyStruct_Type.tp_print = NULL;
-#endif
 
     return 1;
 }

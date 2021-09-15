@@ -372,8 +372,6 @@ class ProxyObject(object):
 
     def _Introspect(self):
         kwargs = {}
-        if is_py2:
-            kwargs['utf8_strings'] = True
         return self._bus.call_async(self._named_service,
                                     self.__dbus_object_path__,
                                     INTROSPECTABLE_IFACE, 'Introspect', '', (),

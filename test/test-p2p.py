@@ -37,8 +37,6 @@ import dbus.service
 import dbus.types
 import dbus_test_utils
 
-from dbus._compat import is_py2
-
 try:
     from gi.repository import GLib
 except ImportError:
@@ -62,15 +60,10 @@ class TestDBusBindings(unittest.TestCase):
         # using dbus.bus.BusConnection!
         conn = dbus.connection.Connection(
                 os.environ['DBUS_SESSION_BUS_ADDRESS'])
-        kwargs = {}
-        if is_py2:
-            kwargs['utf8_strings'] = True
         unique = conn.call_blocking('org.freedesktop.DBus',
                                     '/org/freedesktop/DBus',
                                     'org.freedesktop.DBus', 'Hello',
-                                    '', (), **kwargs)
-        if is_py2:
-            self.assertTrue(unique.__class__ == dbus.UTF8String, repr(unique))
+                                    '', ())
         self.assertTrue(unique.startswith(':'), unique)
         conn.set_unique_name(unique)
         return conn, unique
@@ -112,12 +105,8 @@ class TestDBusBindings(unittest.TestCase):
 
     def testSetUniqueName(self):
         conn, unique = self.get_conn_and_unique()
-        kwargs = {}
-        if is_py2:
-            kwargs['utf8_strings'] = True
         ret = conn.call_blocking(NAME, OBJECT, IFACE,
-                                 'MethodExtraInfoKeywords', '', (),
-                                 **kwargs)
+                                 'MethodExtraInfoKeywords', '', ())
         self.assertEqual(ret, (unique, OBJECT, NAME,
                                 'dbus.lowlevel.MethodCallMessage'))
 

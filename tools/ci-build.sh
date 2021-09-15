@@ -45,7 +45,8 @@ if [ -n "$ci_docker" ]; then
 		--env=dbus_ci_system_python="${dbus_ci_system_python-}" \
 		--privileged \
 		ci-image \
-		tools/ci-build.sh
+		tools/ci-build.sh \
+		"$@"
 fi
 
 if [ -n "$dbus_ci_system_python" ]; then
@@ -57,17 +58,6 @@ if [ -n "$dbus_ci_system_python" ]; then
 	unset VIRTUAL_ENV
 	export PATH=/usr/bin:/bin
 	export PYTHON="$(command -v "$dbus_ci_system_python")"
-
-	case "$dbus_ci_system_python" in
-		(python-dbg|python2.7-dbg)
-			# This is a workaround. Python 2 doesn't have the
-			# LDVERSION sysconfig variable, which would give
-			# AX_PYTHON_DEVEL the information it needs to know
-			# that it should link -lpython2.7_d and not
-			# -lpython2.7.
-			export PYTHON_LIBS="-lpython2.7_d"
-			;;
-	esac
 fi
 
 NOCONFIGURE=1 ./autogen.sh
@@ -77,6 +67,9 @@ e=0
 	cd "$builddir" && "${srcdir}/configure" \
 		--enable-installed-tests \
 		--prefix="$prefix" \
+		--with-python-prefix='${prefix}' \
+		--with-python-exec-prefix='${exec_prefix}' \
+		"$@" \
 		${NULL}
 ) || e=1
 if [ "x$e" != x0 ]; then
@@ -92,7 +85,7 @@ $make -C "$builddir" distcheck
 $make -C "$builddir" install
 ( cd "$prefix" && find . -ls )
 
-dbus_ci_pyversion="$(${PYTHON:-python} -c 'import distutils.sysconfig; print(distutils.sysconfig.get_config_var("VERSION"))')"
+dbus_ci_pyversion="$(${PYTHON:-python3} -c 'import sysconfig; print(sysconfig.get_config_var("VERSION"))')"
 export PYTHONPATH="$prefix/lib/python$dbus_ci_pyversion/site-packages:$PYTHONPATH"
 export XDG_DATA_DIRS="$prefix/share:/usr/local/share:/usr/share"
 gnome-desktop-testing-runner dbus-python

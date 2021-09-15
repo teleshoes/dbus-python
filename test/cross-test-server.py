@@ -35,7 +35,6 @@ except ImportError:
 import dbus.glib
 from dbus import SessionBus
 from dbus.service import BusName
-from dbus._compat import is_py2
 
 from crosstest import (
     CROSS_TEST_BUS_NAME, CROSS_TEST_PATH, INTERFACE_CALLBACK_TESTS,
@@ -226,12 +225,7 @@ class TestsImpl(dbus.service.Object):
         logger.info('Sum of %r is %r', input, x)
         return x
 
-
-    kwargs = {}
-    if is_py2:
-        kwargs['utf8_strings'] = True
-
-    @dbus.service.method(INTERFACE_TESTS, 'a{ss}', 'a{sas}', **kwargs)
+    @dbus.service.method(INTERFACE_TESTS, 'a{ss}', 'a{sas}')
     def InvertMapping(self, input):
         tested_things.add(INTERFACE_TESTS + '.InvertMapping')
         output = dbus.Dictionary({})
@@ -276,8 +270,7 @@ class TestsImpl(dbus.service.Object):
 
     @dbus.service.method(INTERFACE_TESTS, 'st', '',
                          connection_keyword='conn',
-                         async_callbacks=('reply_cb', 'error_cb'),
-                         **kwargs)
+                         async_callbacks=('reply_cb', 'error_cb'))
     def Trigger(self, object, parameter, conn=None, reply_cb=None,
                 error_cb=None):
         assert isinstance(object, str)
@@ -328,17 +321,13 @@ if __name__ == '__main__':
     loop = GLib.MainLoop()
     obj = Server(bus_name, CROSS_TEST_PATH, loop.quit)
     objects[CROSS_TEST_PATH] = obj
-    kwargs = {}
-    if is_py2:
-        kwargs['utf8_strings'] = True
     bus.add_signal_receiver(obj.triggered_by_client,
                             signal_name='Trigger',
                             dbus_interface=INTERFACE_SIGNAL_TESTS,
                             named_service=None,
                             path=None,
                             sender_keyword='sender',
-                            path_keyword='sender_path',
-                            **kwargs)
+                            path_keyword='sender_path')
 
     logger.info("running...")
     loop.run()

@@ -34,10 +34,7 @@
 #include <Python.h>
 #include <dbus/dbus.h>
 
-#if PY_MAJOR_VERSION >= 3
-#define PY3
 #define PYDBUS_CAPSULE_NAME "_dbus_bindings._C_API"
-#endif
 
 DBUS_BEGIN_DECLS
 
@@ -80,7 +77,6 @@ import_dbus_bindings(const char *this_module_name)
     }
     c_api = PyObject_GetAttrString(_dbus_bindings_module, "_C_API");
     if (c_api == NULL) return -1;
-#ifdef PY3
     dbus_bindings_API = NULL;
     if (PyCapsule_IsValid(c_api, PYDBUS_CAPSULE_NAME)) {
         dbus_bindings_API = (_dbus_py_func_ptr *)PyCapsule_GetPointer(
@@ -91,17 +87,6 @@ import_dbus_bindings(const char *this_module_name)
         PyErr_SetString(PyExc_RuntimeError, "C API is not a PyCapsule");
         return -1;
     }
-#else
-    if (PyCObject_Check(c_api)) {
-        dbus_bindings_API = (_dbus_py_func_ptr *)PyCObject_AsVoidPtr(c_api);
-    }
-    else {
-        Py_DECREF(c_api);
-        PyErr_SetString(PyExc_RuntimeError, "C API is not a PyCObject");
-        return -1;
-    }
-    Py_DECREF (c_api);
-#endif
     count = *(int *)dbus_bindings_API[0];
     if (count < DBUS_BINDINGS_API_COUNT) {
         PyErr_Format(PyExc_RuntimeError,

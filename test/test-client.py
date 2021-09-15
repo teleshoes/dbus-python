@@ -39,8 +39,6 @@ import dbus.lowlevel
 import dbus.service
 import dbus_test_utils
 
-from dbus._compat import is_py2, is_py3
-
 try:
     from gi.repository import GLib
 except ImportError:
@@ -128,16 +126,9 @@ class TestDBusBindings(unittest.TestCase):
         self.assertEqual(self.iface.AcceptListOfByte(b'\1\2\3', byte_arrays=True), b'\1\2\3')
         self.assertEqual(self.iface.AcceptByteArray(b'\1\2\3'), [1,2,3])
         self.assertEqual(self.iface.AcceptByteArray(b'\1\2\3', byte_arrays=True), b'\1\2\3')
-        if is_py2:
-            self.assertTrue(isinstance(self.iface.AcceptUTF8String('abc'), unicode))
-            self.assertTrue(isinstance(self.iface.AcceptUTF8String('abc', utf8_strings=True), str))
-        unicode_type = (str if is_py3 else unicode)
         self.assertTrue(isinstance(self.iface.AcceptUnicodeString('abc'), 
-                                   unicode_type))
-        kwargs = {}
-        if is_py2:
-            kwargs['utf8_strings'] = True
-        self.assertTrue(isinstance(self.iface.AcceptUnicodeString('abc', **kwargs), str))
+                                   str))
+        self.assertTrue(isinstance(self.iface.AcceptUnicodeString('abc'), str))
 
     def testIntrospection(self):
         #test introspection
@@ -179,17 +170,6 @@ class TestDBusBindings(unittest.TestCase):
         self.assertTrue(destination.startswith(':'))
         self.assertEqual(message_cls, 'dbus.lowlevel.MethodCallMessage')
 
-    def testUtf8StringsSync(self):
-        if is_py3:
-            return
-        send_val = 'foo'
-        recv_val = self.iface.Echo(send_val, utf8_strings=True)
-        self.assertTrue(isinstance(recv_val, str))
-        self.assertTrue(isinstance(recv_val, dbus.UTF8String))
-        recv_val = self.iface.Echo(send_val, utf8_strings=False)
-        self.assertTrue(isinstance(recv_val, unicode))
-        self.assertTrue(isinstance(recv_val, dbus.String))
-
     def testBenchmarkIntrospect(self):
         print("\n********* Benchmark Introspect ************")
         a = time.time()
@@ -204,7 +184,6 @@ class TestDBusBindings(unittest.TestCase):
         failures = []
         report = []
         main_loop = GLib.MainLoop()
-        unicode_type = (str if is_py3 else unicode)
 
         def message_filter(conn, m):
             print('Message filter received message: %r, %r' % (m, m.get_args_list()))
@@ -213,7 +192,7 @@ class TestDBusBindings(unittest.TestCase):
                 failures.append('Message filter called on unexpected bus')
 
             for a in m.get_args_list():
-                if isinstance(a, unicode_type):
+                if isinstance(a, str):
                     if SHOULD_NOT_HAPPEN in a:
                         failures.append('Had an unexpected reply')
                     elif a == 'TestNoReply report':
@@ -263,9 +242,7 @@ class TestDBusBindings(unittest.TestCase):
                 self.expected_result = expected_result
                 self.do_exit = do_exit
                 self.test_controler = test_controler
-                if is_py2:
-                    self.utf8 = kwargs['utf8']
-                elif 'utf8' in kwargs:
+                if 'utf8' in kwargs:
                     raise TypeError("unexpected keyword argument 'utf8'")
 
             def callback(self, val):
@@ -275,13 +252,6 @@ class TestDBusBindings(unittest.TestCase):
 
                     self.test_controler.assertEqual(val, self.expected_result)
                     self.test_controler.assertEqual(val.variant_level, 1)
-                    if is_py2:
-                        if self.utf8 and not isinstance(val, dbus.UTF8String):
-                            failures.append('%r should have been utf8 but was not' % val)
-                            return
-                        elif not self.utf8 and isinstance(val, dbus.UTF8String):
-                            failures.append('%r should not have been utf8' % val)
-                            return
                 except Exception as e:
                     failures.append("%s:\n%s" % (e.__class__, e))
 
@@ -295,17 +265,10 @@ class TestDBusBindings(unittest.TestCase):
         last_type = test_types_vals[-1]
         for send_val in test_types_vals:
             print("Testing %s" % str(send_val))
-            kwargs = {}
-            if is_py2:
-                utf8 = (send_val == 'gob@gob.com')
-                kwargs['utf8'] = utf8
-                kwargs['utf8_strings'] = utf8
-            check = async_check(self, send_val, last_type == send_val,
-                                **kwargs)
+            check = async_check(self, send_val, last_type == send_val)
             recv_val = self.iface.Echo(send_val,
                                        reply_handler=check.callback,
-                                       error_handler=check.error_handler,
-                                       **kwargs)
+                                       error_handler=check.error_handler)
         main_loop.run()
         if failures:
             self.assertTrue(False, failures)

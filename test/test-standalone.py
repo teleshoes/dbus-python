@@ -40,18 +40,7 @@ import dbus
 import dbus.lowlevel as lowlevel
 import dbus.types as types
 import dbus_test_utils
-from dbus._compat import is_py2, is_py3
 
-if is_py3:
-    def make_long(n):
-        return n
-
-    UNICODE = str
-else:
-    def make_long(n):
-        return long(n)
-
-    UNICODE = unicode
 
 if 'DBUS_TEST_UNINSTALLED' in os.environ:
     builddir = os.path.normpath(os.environ["DBUS_TOP_BUILDDIR"])
@@ -86,10 +75,7 @@ def uni(x):
     supported.
     """
     if x <= 0xFFFF:
-        if is_py3:
-            return chr(x)
-        else:
-            return unichr(x)
+        return chr(x)
     else:
         return struct.pack('>I', x).decode('utf_32_be')
 
@@ -125,7 +111,6 @@ class TestTypes(unittest.TestCase):
         self.assertEqual(types.Byte(b'x', variant_level=2),
                           types.Byte(ord('x')))
         self.assertEqual(types.Byte(1), 1)
-        self.assertEqual(types.Byte(make_long(1)), 1)
         self.assertRaises(Exception, lambda: types.Byte(b'ab'))
         self.assertRaises(TypeError, types.Byte, '\x12xxxxxxxxxxxxx')
         self.assertEqual(str(types.Byte(b'x')), 'x')
@@ -145,8 +130,6 @@ class TestTypes(unittest.TestCase):
 
     def test_integers(self):
         subclasses = [int]
-        if is_py2:
-            subclasses.append(long)
         subclasses = tuple(subclasses)
         # This is an API guarantee. Note that exactly which of these types
         # are ints and which of them are longs is *not* guaranteed.
@@ -162,12 +145,6 @@ class TestTypes(unittest.TestCase):
             self.assertEqual(str(cls(42)), '42')
             self.assertIs(type(str(cls(42))), str)
 
-            if is_py2:
-                self.assertEqual(long(cls(42)), make_long(42))
-                self.assertIs(type(long(cls(42))), long)
-                self.assertEqual(unicode(cls(42)), '42'.decode('ascii'))
-                self.assertIs(type(unicode(cls(42))), unicode)
-
     def test_integer_limits_16(self):
         self.assertEqual(types.Int16(0x7fff), 0x7fff)
         self.assertEqual(types.Int16(-0x8000), -0x8000)
@@ -178,27 +155,22 @@ class TestTypes(unittest.TestCase):
 
     def test_integer_limits_32(self):
         self.assertEqual(types.Int32(0x7fffffff), 0x7fffffff)
-        self.assertEqual(types.Int32(make_long(-0x80000000)), 
-                         make_long(-0x80000000))
-        self.assertEqual(types.UInt32(make_long(0xffffffff)), 
-                         make_long(0xffffffff))
-        self.assertRaises(Exception, types.Int32, make_long(0x80000000))
-        self.assertRaises(Exception, types.Int32, make_long(-0x80000001))
-        self.assertRaises(Exception, types.UInt32, make_long(0x100000000))
+        self.assertEqual(types.Int32(-0x80000000), -0x80000000)
+        self.assertEqual(types.UInt32(0xffffffff), 0xffffffff)
+        self.assertRaises(Exception, types.Int32, 0x80000000)
+        self.assertRaises(Exception, types.Int32, -0x80000001)
+        self.assertRaises(Exception, types.UInt32, 0x100000000)
 
     def test_integer_limits_64(self):
-        self.assertEqual(types.Int64(make_long(0x7fffffffffffffff)), 
-                         make_long(0x7fffffffffffffff))
-        self.assertEqual(types.Int64(make_long(-0x8000000000000000)), 
-                         make_long(-0x8000000000000000))
-        self.assertEqual(types.UInt64(make_long(0xffffffffffffffff)), 
-                         make_long(0xffffffffffffffff))
-        self.assertRaises(Exception, types.Int64,
-                          make_long(0x8000000000000000))
-        self.assertRaises(Exception, types.Int64,
-                          make_long(-0x8000000000000001))
-        self.assertRaises(Exception, types.UInt64,
-                          make_long(0x10000000000000000))
+        self.assertEqual(types.Int64(0x7fffffffffffffff),
+                         0x7fffffffffffffff)
+        self.assertEqual(types.Int64(-0x8000000000000000),
+                         -0x8000000000000000)
+        self.assertEqual(types.UInt64(0xffffffffffffffff),
+                         0xffffffffffffffff)
+        self.assertRaises(Exception, types.Int64, 0x8000000000000000)
+        self.assertRaises(Exception, types.Int64, -0x8000000000000001)
+        self.assertRaises(Exception, types.UInt64, 0x10000000000000000)
 
     def test_Signature(self):
         self.assertRaises(Exception, types.Signature, 'a')
@@ -211,30 +183,12 @@ class TestTypes(unittest.TestCase):
         self.assertEqual(str(types.Signature('ab')), 'ab')
         self.assertIs(type(str(types.Signature('ab'))), str)
 
-        if is_py2:
-            self.assertEqual(str(types.Signature('ab')), 'ab')
-            self.assertIs(type(str(types.Signature('ab'))), str)
-            self.assertEqual(unicode(types.Signature('ab')), 'ab'.decode('ascii'))
-            self.assertIs(type(unicode(types.Signature('ab'))), unicode)
-
     def test_string(self):
         self.assertEqual(types.String('hello', variant_level=23), 'hello')
         self.assertEqual(types.String('hello', variant_level=23).variant_level, 23)
-        self.assertTrue(isinstance(types.String('hello'), UNICODE))
+        self.assertTrue(isinstance(types.String('hello'), str))
         self.assertEqual(str(types.String('hello')), 'hello')
         self.assertIs(type(str(types.String('hello'))), str)
-
-        if is_py2:
-            self.assertEqual(unicode(types.String('hello')), 'hello'.decode('ascii'))
-            self.assertIs(type(unicode(types.String('hello'))), unicode)
-
-            self.assertEqual(types.UTF8String('hello', variant_level=23), 'hello')
-            self.assertEqual(types.UTF8String('hello', variant_level=23).variant_level, 23)
-            self.assertTrue(isinstance(types.UTF8String('hello'), str))
-            self.assertEqual(str(types.UTF8String('hello')), 'hello')
-            self.assertIs(type(str(types.UTF8String('hello'))), str)
-            self.assertEqual(unicode(types.UTF8String('hello')), 'hello'.decode('ascii'))
-            self.assertIs(type(unicode(types.UTF8String('hello'))), unicode)
 
     def test_object_path(self):
         self.assertRaises(Exception, types.ObjectPath, 'a')
@@ -243,10 +197,6 @@ class TestTypes(unittest.TestCase):
         self.assertTrue(isinstance(types.ObjectPath('/ab'), str))
         self.assertEqual(str(types.ObjectPath('/ab')), '/ab')
         self.assertIs(type(str(types.ObjectPath('/ab'))), str)
-
-        if is_py2:
-            self.assertEqual(unicode(types.ObjectPath('/ab')), '/ab'.decode('ascii'))
-            self.assertIs(type(unicode(types.ObjectPath('/ab'))), unicode)
 
     def test_boolean(self):
         self.assertEqual(types.Boolean(True, variant_level=23), True)
@@ -259,10 +209,6 @@ class TestTypes(unittest.TestCase):
         self.assertEqual(int(types.Boolean(47)), 1)
         self.assertIs(type(int(types.Boolean(False))), int)
         self.assertIs(type(int(types.Boolean(True))), int)
-
-        if is_py2:
-            self.assertEqual(unicode(types.Boolean(True)), '1'.decode('ascii'))
-            self.assertIs(type(unicode(types.Boolean(True))), unicode)
 
 
 class TestMessageMarshalling(unittest.TestCase):
@@ -427,8 +373,6 @@ class TestMessageMarshalling(unittest.TestCase):
         aeq = self.assertEqual
         from _dbus_bindings import Message
         aeq(Message.guess_signature(7), 'i')
-        if is_py2:
-            aeq(Message.guess_signature(make_long(7)), 'x')
 
     def test_guess_signature_dbus_types(self):
         aeq = self.assertEqual
@@ -465,31 +409,20 @@ class TestMessageMarshalling(unittest.TestCase):
         aeq(byte.__class__, types.Byte)
         aeq(bytes.__class__, types.ByteArray)
         aeq(bytes, b'bytes')
-        if is_py3:
-            aeq(bytes[0].__class__, int)
-        else:
-            aeq(bytes[0].__class__, str)
+        aeq(bytes[0].__class__, int)
         aeq(int32.__class__, types.Int32)
         aeq(uint32.__class__, types.UInt32)
         aeq(string.__class__, types.String)
         aeq(variant.__class__, types.String)
         aeq(variant.variant_level, 1)
 
-        kwargs = {}
-        if is_py2:
-            kwargs['utf8_strings'] = True
-        byte, bytes, int32, uint32, string, variant = s.get_args_list(
-            **kwargs)
+        byte, bytes, int32, uint32, string, variant = s.get_args_list()
         aeq(byte.__class__, types.Byte)
         aeq(bytes.__class__, types.Array)
         aeq(bytes[0].__class__, types.Byte)
         aeq(int32.__class__, types.Int32)
         aeq(uint32.__class__, types.UInt32)
-        if is_py2:
-            aeq(string.__class__, types.UTF8String)
         aeq(string, 'str')
-        if is_py2:
-            aeq(variant.__class__, types.UTF8String)
         aeq(variant.variant_level, 1)
         aeq(variant, 'var')
 

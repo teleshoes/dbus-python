@@ -496,7 +496,7 @@ Server_get_address(Server *self, PyObject *args UNUSED)
     address = dbus_server_get_address(self->server);
     Py_END_ALLOW_THREADS
 
-    return NATIVESTR_FROMSTR(address);
+    return PyUnicode_FromString(address);
 }
 
 PyDoc_STRVAR(Server_get_id__doc__,
@@ -513,7 +513,7 @@ Server_get_id(Server *self, PyObject *args UNUSED)
     id = dbus_server_get_id(self->server);
     Py_END_ALLOW_THREADS
 
-    return NATIVESTR_FROMSTR(id);
+    return PyUnicode_FromString(id);
 }
 
 PyDoc_STRVAR(Server_get_is_connected__doc__,
@@ -565,11 +565,7 @@ PyTypeObject DBusPyServer_Type = {
     0,                      /*tp_getattro*/
     0,                      /*tp_setattro*/
     0,                      /*tp_as_buffer*/
-#ifdef PY3
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
-#else
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_WEAKREFS | Py_TPFLAGS_BASETYPE,
-#endif
     Server_tp_doc,          /*tp_doc*/
     0,                      /*tp_traverse*/
     0,                      /*tp_clear*/

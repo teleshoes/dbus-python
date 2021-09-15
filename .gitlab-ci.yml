@@ -29,25 +29,12 @@ before_script:
   - ./tools/ci-install.sh
 
 variables:
+  dbus_ci_configure_flags: ''
   ci_in_docker: "yes"
   ci_parallel: "2"
   ci_sudo: "yes"
   ci_distro: "debian"
   ci_suite: "buster"
-
-build:python2.7:
-  stage: build
-  variables:
-    dbus_ci_system_python: python
-  script: &script
-    - chown -R user .
-    - runuser -u user env PATH="/usr/lib/ccache:$PATH" ./tools/ci-build.sh
-
-build:python2.7-dbg:
-  stage: build
-  variables:
-    dbus_ci_system_python: python-dbg
-  script: *script
 
 build:python3.5:
   stage: build
@@ -55,7 +42,9 @@ build:python3.5:
   variables:
     ci_suite: stretch
     dbus_ci_system_python: python3
-  script: *script
+  script: &script
+    - chown -R user .
+    - runuser -u user -- env PATH="/usr/lib/ccache:$PATH" ./tools/ci-build.sh $dbus_ci_configure_flags
 
 build:python3.5-dbg:
   stage: build
@@ -91,7 +80,6 @@ build:python3.9-dbg:
   variables:
     ci_suite: bullseye
     dbus_ci_system_python: python3.9-dbg
-    dbus_ci_system_python_module_prefix: python3-
     dbus_ci_system_python_module_suffix: -dbg
   script: *script
 
@@ -102,6 +90,8 @@ build:python3.10:
     ci_distro: ubuntu
     ci_suite: impish
     dbus_ci_system_python: python3.10
+    dbus_ci_configure_flags: --disable-documentation
+    DISTCHECK_CONFIGURE_FLAGS: --disable-documentation
   script: *script
 
 # vim:set sw=2 sts=2 et:

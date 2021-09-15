@@ -62,7 +62,7 @@ dbus_py_variant_level_get(PyObject *obj)
          */
         return 0;
     }
-    variant_level = NATIVEINT_ASLONG(vl_obj);
+    variant_level = PyLong_AsLong(vl_obj);
     if (variant_level == -1 && PyErr_Occurred()) {
         /* variant_level < 0 can never be inserted into the dictionary; see
          * dbus_py_variant_level_set() below.  The semantics of setting
@@ -93,7 +93,7 @@ dbus_py_variant_level_set(PyObject *obj, long variant_level)
         }
     }
     else {
-        PyObject *vl_obj = NATIVEINT_FROMLONG(variant_level);
+        PyObject *vl_obj = PyLong_FromLong(variant_level);
         if (!vl_obj) {
             Py_CLEAR(key);
             return FALSE;
@@ -114,32 +114,8 @@ dbus_py_variant_level_getattro(PyObject *obj, PyObject *name)
 {
     PyObject *key, *value;
 
-#ifdef PY3
     if (PyUnicode_CompareWithASCIIString(name, "variant_level"))
         return PyObject_GenericGetAttr(obj, name);
-#else
-    if (PyBytes_Check(name)) {
-        Py_INCREF(name);
-    }
-    else if (PyUnicode_Check(name)) {
-        name = PyUnicode_AsEncodedString(name, NULL, NULL);
-        if (!name) {
-            return NULL;
-        }
-    }
-    else {
-        PyErr_SetString(PyExc_TypeError, "attribute name must be string");
-        return NULL;
-    }
-
-    if (strcmp(PyBytes_AS_STRING(name), "variant_level")) {
-        value = PyObject_GenericGetAttr(obj, name);
-        Py_CLEAR(name);
-        return value;
-    }
-
-    Py_CLEAR(name);
-#endif  /* PY3 */
 
     key = PyLong_FromVoidPtr(obj);
 
@@ -151,7 +127,7 @@ dbus_py_variant_level_getattro(PyObject *obj, PyObject *name)
     Py_CLEAR(key);
 
     if (!value)
-        return NATIVEINT_FROMLONG(0);
+        return PyLong_FromLong(0);
     Py_INCREF(value);
     return value;
 }
@@ -172,122 +148,11 @@ dbus_py_variant_level_clear(PyObject *self)
     PyErr_Restore(et, ev, etb);
 }
 
-#ifndef PY3
-/* Support code for int subclasses. ================================== */
-
-PyDoc_STRVAR(DBusPythonInt_tp_doc,\
-"Base class for int subclasses with a ``variant_level`` attribute.\n"
-"Do not rely on the existence of this class outside dbus-python.\n"
-);
-
-static PyMemberDef DBusPythonInt_tp_members[] = {
-    {"variant_level", T_LONG, offsetof(DBusPyIntBase, variant_level),
-     READONLY,
-     "The number of nested variants wrapping the real data. "
-     "0 if not in a variant."},
-    {NULL},
-};
-
-static PyObject *
-DBusPythonInt_tp_new(PyTypeObject *cls, PyObject *args, PyObject *kwargs)
-{
-    PyObject *self;
-    long variantness = 0;
-    static char *argnames[] = {"variant_level", NULL};
-
-    if (PyTuple_Size(args) > 1) {
-        PyErr_SetString(PyExc_TypeError,
-                        "__new__ takes at most one positional parameter");
-        return NULL;
-    }
-    if (!PyArg_ParseTupleAndKeywords(dbus_py_empty_tuple, kwargs,
-                                     "|l:__new__", argnames,
-                                     &variantness)) return NULL;
-    if (variantness < 0) {
-        PyErr_SetString(PyExc_ValueError,
-                        "variant_level must be non-negative");
-        return NULL;
-    }
-
-    self = (PyInt_Type.tp_new)(cls, args, NULL);
-    if (self) {
-        ((DBusPyIntBase *)self)->variant_level = variantness;
-    }
-    return self;
-}
-
-static PyObject *
-DBusPythonInt_tp_repr(PyObject *self)
-{
-    PyObject *parent_repr = (PyInt_Type.tp_repr)(self);
-    long variant_level = ((DBusPyIntBase *)self)->variant_level;
-    PyObject *my_repr;
-
-    if (!parent_repr) return NULL;
-    if (variant_level > 0) {
-        my_repr = PyUnicode_FromFormat("%s(%V, variant_level=%ld)",
-                                       Py_TYPE(self)->tp_name,
-                                       REPRV(parent_repr),
-                                       variant_level);
-    }
-    else {
-        my_repr = PyUnicode_FromFormat("%s(%V)", Py_TYPE(self)->tp_name,
-                                       REPRV(parent_repr));
-    }
-    /* whether my_repr is NULL or not: */
-    Py_CLEAR(parent_repr);
-    return my_repr;
-}
-
-PyTypeObject DBusPyIntBase_Type = {
-    PyVarObject_HEAD_INIT(DEFERRED_ADDRESS(&PyType_Type), 0)
-    "_dbus_bindings._IntBase",
-    sizeof(DBusPyIntBase),
-    0,
-    0,                                      /* tp_dealloc */
-    0,                                      /* tp_print */
-    0,                                      /* tp_getattr */
-    0,                                      /* tp_setattr */
-    0,                                      /* tp_compare */
-    DBusPythonInt_tp_repr,                  /* tp_repr */
-    0,                                      /* tp_as_number */
-    0,                                      /* tp_as_sequence */
-    0,                                      /* tp_as_mapping */
-    0,                                      /* tp_hash */
-    0,                                      /* tp_call */
-    0,                                      /* tp_str */
-    0,                                      /* tp_getattro */
-    0,                                      /* tp_setattro */
-    0,                                      /* tp_as_buffer */
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE, /* tp_flags */
-    DBusPythonInt_tp_doc,                   /* tp_doc */
-    0,                                      /* tp_traverse */
-    0,                                      /* tp_clear */
-    0,                                      /* tp_richcompare */
-    0,                                      /* tp_weaklistoffset */
-    0,                                      /* tp_iter */
-    0,                                      /* tp_iternext */
-    0,                                      /* tp_methods */
-    DBusPythonInt_tp_members,               /* tp_members */
-    0,                                      /* tp_getset */
-    DEFERRED_ADDRESS(&PyInt_Type),          /* tp_base */
-    0,                                      /* tp_dict */
-    0,                                      /* tp_descr_get */
-    0,                                      /* tp_descr_set */
-    0,                                      /* tp_dictoffset */
-    0,                                      /* tp_init */
-    PyType_GenericAlloc,                    /* tp_alloc */
-    DBusPythonInt_tp_new,                   /* tp_new */
-    PyObject_Del,                           /* tp_free */
-};
-#endif  /* !PY3 */
-
 /* Support code for float subclasses. ================================ */
 
 /* There's only one subclass at the moment (Double) but these are factored
 out to make room for Float later. (Float is implemented and #if'd out) */
 
-#ifdef PY3
 /* In Python >= 3.8 the tp_str for subclasses of built-in types prints
  * the subclass repr(), which does not match dbus-python's historical
  * behaviour. */
@@ -296,9 +161,6 @@ DBusPythonFloat_tp_str(PyObject *self)
 {
     return (PyFloat_Type.tp_repr)(self);
 }
-#else
-#define DBusPythonFloat_tp_str 0
-#endif
 
 PyDoc_STRVAR(DBusPythonFloat_tp_doc,\
 "Base class for float subclasses with a ``variant_level`` attribute.\n"
@@ -405,7 +267,6 @@ PyTypeObject DBusPyFloatBase_Type = {
     DBusPythonFloat_tp_new,                 /* tp_new */
 };
 
-#ifdef PY3
 /* Support code for bytes subclasses ================================== */
 
 PyDoc_STRVAR(DBusPythonBytes_tp_doc,\
@@ -460,7 +321,7 @@ DBusPythonBytes_tp_repr(PyObject *self)
         Py_CLEAR(parent_repr);
         return NULL;
     }
-    variant_level = NATIVEINT_ASLONG(vl_obj);
+    variant_level = PyLong_AsLong(vl_obj);
     Py_CLEAR(vl_obj);
     if (variant_level == -1 && PyErr_Occurred()) {
         Py_CLEAR(parent_repr);
@@ -528,7 +389,6 @@ PyTypeObject DBusPyBytesBase_Type = {
     0,                                      /* tp_alloc */
     DBusPythonBytes_tp_new,                 /* tp_new */
 };
-#endif  /* PY3 */
 
 /* Support code for str subclasses ================================== */
 
@@ -558,7 +418,7 @@ DBusPythonString_tp_new(PyTypeObject *cls, PyObject *args, PyObject *kwargs)
         return NULL;
     }
 
-    self = (NATIVESTR_TYPE.tp_new)(cls, args, NULL);
+    self = (PyUnicode_Type.tp_new)(cls, args, NULL);
     if (self) {
         if (!dbus_py_variant_level_set(self, variantness)) {
             Py_CLEAR(self);
@@ -571,7 +431,7 @@ DBusPythonString_tp_new(PyTypeObject *cls, PyObject *args, PyObject *kwargs)
 static PyObject *
 DBusPythonString_tp_repr(PyObject *self)
 {
-    PyObject *parent_repr = (NATIVESTR_TYPE.tp_repr)(self);
+    PyObject *parent_repr = (PyUnicode_Type.tp_repr)(self);
     PyObject *vl_obj;
     PyObject *my_repr;
     long variant_level;
@@ -582,7 +442,7 @@ DBusPythonString_tp_repr(PyObject *self)
         Py_CLEAR(parent_repr);
         return NULL;
     }
-    variant_level = NATIVEINT_ASLONG(vl_obj);
+    variant_level = PyLong_AsLong(vl_obj);
     Py_CLEAR(vl_obj);
     if (variant_level == -1 && PyErr_Occurred()) {
         Py_CLEAR(parent_repr);
@@ -608,7 +468,7 @@ static void
 DBusPyStrBase_tp_dealloc(PyObject *self)
 {
     dbus_py_variant_level_clear(self);
-    (NATIVESTR_TYPE.tp_dealloc)(self);
+    (PyUnicode_Type.tp_dealloc)(self);
 }
 
 PyTypeObject DBusPyStrBase_Type = {
@@ -642,7 +502,7 @@ PyTypeObject DBusPyStrBase_Type = {
     0,                                      /* tp_methods */
     0,                                      /* tp_members */
     0,                                      /* tp_getset */
-    DEFERRED_ADDRESS(&NATIVESTR_TYPE),      /* tp_base */
+    DEFERRED_ADDRESS(&PyUnicode_Type),      /* tp_base */
     0,                                      /* tp_dict */
     0,                                      /* tp_descr_get */
     0,                                      /* tp_descr_set */
@@ -704,7 +564,7 @@ DBusPythonLong_tp_repr(PyObject *self)
         Py_CLEAR(parent_repr);
         return NULL;
     }
-    variant_level = NATIVEINT_ASLONG(vl_obj);
+    variant_level = PyLong_AsLong(vl_obj);
     Py_CLEAR(vl_obj);
     if (variant_level < 0 && PyErr_Occurred()) {
         Py_CLEAR(parent_repr);
@@ -726,7 +586,6 @@ DBusPythonLong_tp_repr(PyObject *self)
     return my_repr;
 }
 
-#ifdef PY3
 /* In Python >= 3.8 the tp_str for subclasses of built-in types prints
  * the subclass repr(), which does not match dbus-python's historical
  * behaviour. */
@@ -735,9 +594,6 @@ DBusPythonLong_tp_str(PyObject *self)
 {
     return (PyLong_Type.tp_repr)(self);
 }
-#else
-#define DBusPythonLong_tp_str 0
-#endif
 
 static void
 DBusPyLongBase_tp_dealloc(PyObject *self)
@@ -791,58 +647,32 @@ PyObject *dbus_py_variant_level_const = NULL;
 PyObject *dbus_py_signature_const = NULL;
 PyObject *dbus_py__dbus_object_path__const = NULL;
 
-#ifdef PY3
-#define INTERN (PyUnicode_InternFromString)
-#else
-/* Neither Python 2.6 nor 2.7 define the expected PyBytes_InternFromString
- * alias in bytesobject.h.
- */
-#define INTERN (PyString_InternFromString)
-#endif
-
 dbus_bool_t
 dbus_py_init_abstract(void)
 {
     _dbus_py_variant_levels = PyDict_New();
     if (!_dbus_py_variant_levels) return 0;
 
-    dbus_py__dbus_object_path__const = INTERN("__dbus_object_path__");
+    dbus_py__dbus_object_path__const = PyUnicode_InternFromString("__dbus_object_path__");
     if (!dbus_py__dbus_object_path__const) return 0;
 
-    dbus_py_variant_level_const = INTERN("variant_level");
+    dbus_py_variant_level_const = PyUnicode_InternFromString("variant_level");
     if (!dbus_py_variant_level_const) return 0;
 
-    dbus_py_signature_const = INTERN("signature");
+    dbus_py_signature_const = PyUnicode_InternFromString("signature");
     if (!dbus_py_signature_const) return 0;
 
-#ifdef PY3
     DBusPyBytesBase_Type.tp_base = &PyBytes_Type;
     if (PyType_Ready(&DBusPyBytesBase_Type) < 0) return 0;
-#else
-    DBusPyIntBase_Type.tp_base = &PyInt_Type;
-    if (PyType_Ready(&DBusPyIntBase_Type) < 0) return 0;
-    /* disable the tp_print copied from PyInt_Type, so tp_repr gets called as
-    desired */
-    DBusPyIntBase_Type.tp_print = NULL;
-#endif
 
     DBusPyFloatBase_Type.tp_base = &PyFloat_Type;
     if (PyType_Ready(&DBusPyFloatBase_Type) < 0) return 0;
-#ifndef PY3
-    DBusPyFloatBase_Type.tp_print = NULL;
-#endif
 
     DBusPyLongBase_Type.tp_base = &PyLong_Type;
     if (PyType_Ready(&DBusPyLongBase_Type) < 0) return 0;
-#ifndef PY3
-    DBusPyLongBase_Type.tp_print = NULL;
-#endif
 
-    DBusPyStrBase_Type.tp_base = &NATIVESTR_TYPE;
+    DBusPyStrBase_Type.tp_base = &PyUnicode_Type;
     if (PyType_Ready(&DBusPyStrBase_Type) < 0) return 0;
-#ifndef PY3
-    DBusPyStrBase_Type.tp_print = NULL;
-#endif
 
     return 1;
 }
@@ -851,15 +681,9 @@ dbus_bool_t
 dbus_py_insert_abstract_types(PyObject *this_module)
 {
     /* PyModule_AddObject steals a ref */
-#ifdef PY3
     Py_INCREF(&DBusPyBytesBase_Type);
     if (PyModule_AddObject(this_module, "_BytesBase",
                            (PyObject *)&DBusPyBytesBase_Type) < 0) return 0;
-#else
-    Py_INCREF(&DBusPyIntBase_Type);
-    if (PyModule_AddObject(this_module, "_IntBase",
-                           (PyObject *)&DBusPyIntBase_Type) < 0) return 0;
-#endif
     Py_INCREF(&DBusPyLongBase_Type);
     Py_INCREF(&DBusPyStrBase_Type);
     Py_INCREF(&DBusPyFloatBase_Type);
