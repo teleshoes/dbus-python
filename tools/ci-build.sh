@@ -67,6 +67,8 @@ e=0
 	cd "$builddir" && "${srcdir}/configure" \
 		--enable-installed-tests \
 		--prefix="$prefix" \
+		--with-python-prefix='${prefix}' \
+		--with-python-exec-prefix='${exec_prefix}' \
 		"$@" \
 		${NULL}
 ) || e=1
