@@ -16,6 +16,9 @@ API changes:
 
 Fixes:
 
+• Fix undefined escape sequences in docstrings
+  (dbus-python#40; Jason A. Yundt)
+
 • Make `distcheck` compatible with Automake 1.16.4, by forcing an
   appropriate prefix to be used
   (dbus-python!115; Simon McVittie)
