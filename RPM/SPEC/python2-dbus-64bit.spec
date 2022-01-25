@@ -1,5 +1,5 @@
 Name:          python2-dbus
-BuildArch:     armv7hl
+BuildArch:     aarch64
 Version:       1.2.8
 Release:       sf0.1
 License:       Custom (open source, permissive)
@@ -10,16 +10,17 @@ Distribution:  SailfishOS 4.3.0.12
 Provides:      dbus-python=1.2.8-sf0.1
 Provides:      python-dbus=1.2.8-sf0.1
 Provides:      python2-dbus=1.2.8-sf0.1
+Provides:      python2-dbus(aarch-64) = 1.2.8-sf0.1
 Provides:      python2.7dist(dbus-python) = 1.2.8
 Provides:      python2dist(dbus-python) = 1.2.8
 
 Requires:      python2
 Requires:      dbus
-Requires:      libc.so.6
-Requires:      libc.so.6(GLIBC_2.4)
-Requires:      libdbus-1.so.3
-Requires:      libdbus-1.so.3(LIBDBUS_1_3)
-Requires:      libglib-2.0.so.0
+Requires:      libc.so.6()(64bit)
+Requires:      libc.so.6(GLIBC_2.17)(64bit)
+Requires:      libdbus-1.so.3()(64bit)
+Requires:      libdbus-1.so.3(LIBDBUS_1_3)(64bit)
+Requires:      libglib-2.0.so.0()(64bit)
 
 %description
 D-Bus python 2 bindings for use with python programs.
@@ -27,10 +28,10 @@ D-Bus python 2 bindings for use with python programs.
 %files
 %attr(0644, root, root) "/usr/include/dbus-1.0/dbus/dbus-python.h"
 %attr(0644, root, root) "/usr/lib/pkgconfig/dbus-python.pc"
-%attr(0644, root, root) "/usr/lib/python2.7/site-packages/_dbus_bindings.la"
-%attr(0755, root, root) "/usr/lib/python2.7/site-packages/_dbus_bindings.so"
-%attr(0644, root, root) "/usr/lib/python2.7/site-packages/_dbus_glib_bindings.la"
-%attr(0755, root, root) "/usr/lib/python2.7/site-packages/_dbus_glib_bindings.so"
+%attr(0644, root, root) "/usr/lib64/python2.7/site-packages/_dbus_bindings.la"
+%attr(0755, root, root) "/usr/lib64/python2.7/site-packages/_dbus_bindings.so"
+%attr(0644, root, root) "/usr/lib64/python2.7/site-packages/_dbus_glib_bindings.la"
+%attr(0755, root, root) "/usr/lib64/python2.7/site-packages/_dbus_glib_bindings.so"
 %attr(0644, root, root) "/usr/lib/python2.7/site-packages/dbus/__init__.py"
 %attr(0644, root, root) "/usr/lib/python2.7/site-packages/dbus/__init__.pyc"
 %attr(0644, root, root) "/usr/lib/python2.7/site-packages/dbus/__init__.pyo"
